@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Formulario de Árbitro</title>
+        <link rel="stylesheet" th:href="@{/css/referee.css}">
+        <link rel="stylesheet" th:href="@{/css/back-button.css}">
+    </head>
+    <body>
+        <a class="back-top-btn" href="#" onclick="return window.dashboardBack ? window.dashboardBack('arbitros') : false;">← Volver</a>
+
+        <h2>Formulario de Árbitro</h2>
+
+        <div class="form-container" th:fragment="contenido">
+            <form th:action="@{/referees/admin/update}" method="post" class="referee-form">
+
+                <label>Cédula:</label>
+                <input type="text" name="idR" th:value="${referee.id}" required pattern="[0-9]+" maxlength="12" th:readonly="${referee != null}" />
+
+                <label>Nombre:</label>
+                <input type="text" name="nameR" th:value="${referee.name}" required pattern="[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+" maxlength="40">
+
+                <label>Apellido:</label>
+                <input type="text" name="lastnameR" th:value="${referee.lastName}" required pattern="[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+" maxlength="40">
+
+                <label>Correo:</label>
+                <input type="email" name="mailR" th:value="${referee.mail}" maxlength="45" required>
+
+                <label>Edad:</label>
+                <input type="number" name="ageR" th:value="${referee.age}" min="18" max="70" required>
+
+                <label>Género:</label>
+                <select name="genderR" required>
+                    <option value="M" th:selected="${referee.gender == 'M'}">Masculino</option>
+                    <option value="F" th:selected="${referee.gender == 'F'}">Femenino</option>
+                </select>
+
+                <label>Experiencia (en años):</label>
+                <input type="number" name="experienceR" th:value="${referee.experience}" min="0" max="50" required>
+
+                <label>
+                    Disponible:
+                    <input type="checkbox" name="availableR" value="true" th:checked="${referee.available}"/>
+                    <input type="hidden" name="availableR" value="false">
+                </label>
+
+                <input type="submit" value="Guardar">
+                <a href="/referees/admin" class="btn-inicio back-referee-list">Inicio</a>
+            </form>
+        </div>
+    </body>
+</html>

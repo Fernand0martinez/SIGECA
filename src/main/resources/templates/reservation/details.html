@@ -1,0 +1,70 @@
+<!-- src/main/resources/templates/reservation/details.html -->
+<style>
+    .back-top-btn {
+        position: fixed;
+        top: 16px;
+        left: 16px;
+        z-index: 1000;
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 12px;
+        border-radius: 10px;
+        border: 1px solid #cbd5e1;
+        background: #ffffff;
+        color: #1e293b;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 700;
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+    }
+
+    .btn-volver {
+        display: block;
+        width: fit-content;
+        margin: 12px auto 0;
+        padding: 10px 20px;
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: bold;
+        cursor: pointer;
+    }
+</style>
+<div id="detalle-reservacion" th:fragment="contenido">
+    <a class="back-top-btn" href="#" onclick="return window.dashboardBack ? window.dashboardBack('reservaciones') : false;">← Volver</a>
+
+    <h2 style="text-align: center;">
+        Detalles de la Reservacion de "<span th:text="${reservacion.user.name}"></span>"
+    </h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Campo</th>
+                <th>Valor</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>ID</td>
+                <td th:text="${reservacion.id}"></td>
+            </tr>
+            <tr>
+                <td>Hora de fin</td>
+                <td th:text="${reservacion.endHour}"></td>
+            </tr>
+            <tr>
+                <td>Precio total</td>
+                <td th:text="${#numbers.formatDecimal(reservacion.totalPrice, 1, 'COMMA', 2, 'POINT')} + ' CRC'"></td>
+            </tr>
+            <tr>
+                <td>Estado</td>
+                <td th:text="${reservacion.status}"></td>
+            </tr>
+        </tbody>
+    </table>
+    <br>
+    <button class="btn-volver" type="button" onclick="return window.dashboardBack ? window.dashboardBack('reservaciones') : false;">Volver</button>
+</div>

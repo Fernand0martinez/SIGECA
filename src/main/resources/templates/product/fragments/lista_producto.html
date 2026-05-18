@@ -1,0 +1,39 @@
+<body>
+    <!-- Botón fuera del tbody -->
+    <div style="text-align: center; margin: 20px 0;">
+        <button type="button" id="btn-nuevo-producto" class="btn-agregar">+ Agregar nuevo producto</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Categoría</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Cancha</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="tbodyProductos" th:fragment="tbodyProductos">
+            <tr th:each="product : ${products}">
+                <td th:text="${product.productName}"></td>
+                <td th:text="${product.description}"></td>
+                <td th:text="${product.category}"></td>
+                <td th:text="${product.price} + ' ₡'"></td>
+                <td th:text="${product.stock}"></td>
+                <td th:text="${product.court.nameCourt}"></td>
+                <td class="action-buttons">
+                    <button type="button" class="btn-details-product"
+                            th:attr="data-id=${product.idProduct}">Detalles</button>
+                    <a th:href="@{/products/admin/edit(idProduct=${product.idProduct})}" class="btn btn-edit">Editar</a>
+                    <a th:href="@{/products/admin/delete(idProduct=${product.idProduct})}" class="btn-delete-product">Eliminar</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+
+
+

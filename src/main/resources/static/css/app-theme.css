@@ -1,0 +1,173 @@
+:root {
+    --field-green-900: #0f3d2e;
+    --field-green-800: #145235;
+    --field-green-700: #1b6b43;
+    --field-green-600: #228b50;
+    --field-green-500: #2fa85f;
+    --field-line: #d8e6dc;
+    --surface-0: #f4f7f5;
+    --surface-1: #ffffff;
+    --surface-2: #eef4f0;
+    --text-strong: #10261a;
+    --text-soft: #4d6257;
+    --danger: #c0392b;
+    --warning: #d68910;
+    --info: #1f6fb2;
+    --shadow-soft: 0 16px 40px rgba(16, 38, 26, 0.08);
+}
+
+body {
+    background:
+        radial-gradient(circle at top right, rgba(47, 168, 95, 0.08), transparent 28%),
+        linear-gradient(180deg, #f7faf8 0%, #eef4f0 100%);
+    color: var(--text-strong);
+}
+
+.main-content {
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(246, 250, 247, 0.95));
+}
+
+.card,
+.container,
+.product-wrapper,
+.payment,
+.table-wrapper,
+.player-list-container,
+.referee-management-container,
+.detalle-usuario,
+.invoice-container,
+.page-container,
+.form-container,
+.tournament-container,
+.court-form,
+.detalle-producto-card {
+    background: var(--surface-1);
+    border: 1px solid var(--field-line);
+    box-shadow: var(--shadow-soft);
+}
+
+.card,
+.container,
+.product-wrapper,
+.payment,
+.table-wrapper,
+.player-list-container,
+.referee-management-container,
+.detalle-usuario,
+.invoice-container,
+.page-container,
+.form-container,
+.tournament-container,
+.detalle-producto-card {
+    border-radius: 14px;
+}
+
+h1, h2, h3, .main-title, .form-legend {
+    color: var(--field-green-900);
+}
+
+p, label, .topbar-left p {
+    color: var(--text-soft);
+}
+
+input,
+select,
+textarea,
+.form-input {
+    border: 1px solid #cddbcf;
+    border-radius: 10px;
+    background: #fbfdfb;
+    color: var(--text-strong);
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+.form-input:focus {
+    outline: none;
+    border-color: var(--field-green-500);
+    box-shadow: 0 0 0 4px rgba(47, 168, 95, 0.12);
+}
+
+button,
+.btn,
+.button,
+.btn-agregar-nuevo,
+.btn-inicio,
+.logout-link,
+.nav-button,
+.btn-back-list {
+    border-radius: 10px;
+}
+
+.btn-success,
+.button--success,
+.btn-agregar,
+.btn-agregar-nuevo,
+.refresh-button-product {
+    background: linear-gradient(135deg, var(--field-green-700), var(--field-green-500));
+    color: #fff;
+    border: none;
+}
+
+.btn-secondary,
+.button--neutral,
+.btn-back-list,
+.btn-volver {
+    background: #ecf2ee;
+    color: var(--field-green-900);
+    border: 1px solid #d3e1d7;
+}
+
+.btn-editar,
+.btn-edit,
+.button--warning {
+    background: linear-gradient(135deg, #d59a17, #f0b93d);
+    color: #fff;
+    border: none;
+}
+
+.btn-eliminar,
+.btn-delete-product,
+.button--error,
+.btn-cancelar {
+    background: linear-gradient(135deg, #b83a2d, #d35445);
+    color: #fff;
+    border: none;
+}
+
+.btn-ver-detalle,
+.btn-details-product,
+.paid,
+.invoice {
+    background: linear-gradient(135deg, var(--info), #4ca1e0);
+    color: #fff;
+    border: none;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--surface-1);
+    overflow: hidden;
+}
+
+thead th {
+    background: linear-gradient(180deg, var(--field-green-900), var(--field-green-800));
+    color: #fff;
+    border: none;
+}
+
+th, td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #e3ece5;
+}
+
+tbody tr:nth-child(even) {
+    background: #f8fbf8;
+}
+
+tbody tr:hover {
+    background: #edf7ef;
+}

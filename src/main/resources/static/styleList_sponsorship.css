@@ -1,0 +1,195 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+h1 {
+    color: #4CAF50;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    background-color: white;
+}
+
+th {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px;
+}
+
+td {
+    padding: 8px;
+    text-align: center;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+tr:hover {
+    background-color: #D5F5E3;
+}
+
+a {
+    color: #4CAF50;
+    text-decoration: none;
+    margin-top: 15px;
+    display: inline-block;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+button {
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    cursor: pointer;
+    font-size: 14px;
+    margin: 5px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.btn-editar {
+    background-color: #FF9800; /* Naranja */
+}
+
+.btn-editar:hover {
+    background-color: #FB8C00;
+}
+
+.btn-eliminar {
+    background-color: #F44336; /* Rojo */
+}
+
+.btn-eliminar:hover {
+    background-color: #E53935;
+}
+
+.btn-ver-detalle {
+    background-color: #2196F3; /* Azul */
+}
+
+.btn-ver-detalle:hover {
+    background-color: #1976D2;
+}
+
+/* Contenedor de los botones */
+.button-container {
+    display: flex;
+    justify-content: center; /* Centra los botones en el contenedor */
+    gap: 10px; /* Espacio entre los botones */
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+/* Estilo del botón Inicio */
+.btn-inicio {
+    background-color: #dc3545;
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    text-align: center;
+}
+
+/* Efecto hover del botón Inicio */
+.btn-inicio:hover {
+    background-color: #c82333;
+    transform: scale(1.03);
+}
+
+/* Estilo del botón Agregar Nuevo */
+.btn-agregar-nuevo {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    text-align: center;
+}
+
+/* Efecto hover del botón Agregar Nuevo */
+.btn-agregar-nuevo:hover {
+    background-color: #45a049;
+    transform: scale(1.03);
+}
+
+
+
+.actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.contenedor-productos-scrollable {
+    max-height: 300px;
+    overflow-y: auto;
+    margin: 0 auto;
+    width: 80%;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background-color: white;
+}
+
+#detalle-patrocinio {
+    margin: 20px auto 0 auto; /* Ajusta la distancia entre la tabla y los detalles */
+    width: 65%; /* Tiene el mismo tamaño que la tabla */
+}
+
+#detalle-patrocinio table {
+    border-collapse: collapse;
+    width: 100%;
+    background-color: white;
+}
+
+#detalle-patrocinio th, #detalle-patrocinio td {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+#detalle-patrocinio th {
+    background-color: #4CAF50;
+    color: white;
+}
+
+#detalle-patrocinio tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+#detalle-patrocinio tr:hover {
+    background-color: #D5F5E3;
+}
+
+.btn-volver {
+    display: block;
+    width: fit-content;
+    margin: 20px auto 0 auto;
+    padding: 10px 20px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-volver:hover {
+    background-color: #c82333;
+}
+
+

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" th:href="@{/css/back-button.css}">
+    </head>
+    <body>
+        <a class="back-top-btn" href="#" onclick="return window.dashboardBack ? window.dashboardBack('jugadores', 'jugador') : false;">← Volver</a>
+        <div th:fragment="contenido">
+            <h2 th:text="'Detalles de '+${player.name}+':'"  style="background: chartreuse"></h2>
+            <table>
+                <thead>
+                       <th>Nombre</th>
+                        <th>Edad</th>
+                        <th>Género</th>
+                        <th>Numero Uniforme</th>
+                        <th>Posición </th>
+                        <th>Goles</th>
+                        <th>Asistencias</th>
+                         <th>Está amonestad@?</th>
+                </thead>
+                <tbody>
+                    <tr th:each="p: ${player}">
+                       <td th:text="${p.name?:'N/A'}" style="color: #155724"> </td>
+                       <td th:text="${p.age ?: 'N/A'}+' años.'" style="color: darkorange"></td>
+                        <td  th:text="${gender}" style="color: darkorange">
+                        <td th:text="'Uniforme #: '+${p.dorsal ?: 'N/A'}+'.'" style="color: deeppink"></td>
+                        <td th:text="${position}" style="color: mediumpurple"></td>
+                        <td th:text="${p.goal ?: 0} +' goles.'" style="color: teal"></td>
+                        <td th:text="${p.assist ?: 0}+' asistencias.'" style="color: brown"></td>
+                        <td th:text="${p.admonished=='N'? 'No':'Sí'}" style="color: coral"></td> 
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </body>
+</html>

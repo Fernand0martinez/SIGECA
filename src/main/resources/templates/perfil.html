@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalles del Usuario</title>
+    <link rel="stylesheet" th:href="@{/StylesMain.css}">
+</head>
+<body>
+    <div class="detalle-usuario" th:fragment="contenido">
+        <h2>Detalles del Usuario</h2>
+
+        <table class="tabla-detalle-usuario">
+            <thead>
+                <tr>
+                    <th>Atributo</th>
+                    <th>Valor</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="negrita">ID</td>
+                    <td th:text="${user.nameUser}"></td>
+                </tr>
+                <tr>
+                    <td class="negrita">Nombre</td>
+                    <td th:text="${user.name}"></td>
+                </tr>
+                <tr>
+                    <td class="negrita">Apellido</td>
+                    <td th:text="${user.lastName}"></td>
+                </tr>
+                <tr>
+                    <td class="negrita">Cedula</td>
+                    <td th:text="${user.idCard}"></td>
+                </tr>
+                <tr>
+                    <td class="negrita">Correo</td>
+                    <td th:text="${user.mail}"></td>
+                </tr>
+                <tr>
+                    <td class="negrita">Teléfono</td>
+                    <td th:text="${user.phone}"></td>
+                </tr>
+                <tr>
+                    <td class="negrita">Edad</td>
+                    <td th:text="${user.age}"></td>
+                </tr>
+                <tr>
+                    <td class="negrita">Género</td>
+                    <td>
+                        <span th:switch="${user.gender}">
+                            <span th:case="'M'">Masculino</span>
+                            <span th:case="'F'">Femenino</span>
+                            <span th:case="*">Otro</span>
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="negrita">Rol</td>
+                    <td>
+                        <span th:switch="${user.role}">
+                            <span th:case="'A'">Administrador</span>
+                            <span th:case="'S'">Supervisor</span>
+                            <span th:case="'U'">Usuario</span>
+                            <span th:case="*">Desconocido</span>
+                        </span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Botones de acción -->
+        <div class="acciones-container">
+            <button class="btn-volver" onclick="return window.dashboardBack ? window.dashboardBack('canchas') : false;">Volver</button>
+            <button class="btn-cerrar" onclick="window.location.href='/login/logout'">Cerrar Sesión</button>
+
+        </div>
+    </div>
+</body>
+</html>

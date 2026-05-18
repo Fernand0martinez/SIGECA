@@ -1,0 +1,81 @@
+.sponsorship-module {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #d9e7dc;
+    border-radius: 16px;
+    box-shadow: 0 18px 42px rgba(16, 38, 26, 0.08);
+}
+
+.sponsorship-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.sponsorship-header h1,
+.sponsorship-header h2 {
+    margin: 0;
+}
+
+.sponsorship-header p {
+    margin: 6px 0 0;
+}
+
+.sponsorship-actions,
+.sponsorship-form-actions,
+.sponsorship-filter-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: end;
+}
+
+.sponsorship-filter-form {
+    margin: 20px 0;
+    padding: 16px;
+    background: #f6faf7;
+    border: 1px solid #dbe7de;
+    border-radius: 12px;
+}
+
+.sponsorship-filter-form label,
+.sponsorship-form-grid label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #1b3a2c;
+}
+
+.sponsorship-filter-form select,
+.sponsorship-filter-form input,
+.sponsorship-form-grid select,
+.sponsorship-form-grid input {
+    min-width: 200px;
+    width: 100%;
+    padding: 10px 12px;
+}
+
+.sponsorship-table-wrap {
+    overflow: auto;
+    border-radius: 12px;
+    border: 1px solid #dce8df;
+}
+
+.sponsorship-table-wrap table {
+    min-width: 760px;
+}
+
+.sponsorship-form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.sponsorship-detail {
+    margin-top: 20px;
+}

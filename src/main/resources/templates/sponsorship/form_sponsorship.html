@@ -1,0 +1,73 @@
+<div class="sponsorship-module fadeIn" th:fragment="contenido">
+    <div class="sponsorship-header">
+        <div>
+            <h2>Registrar Nuevo Patrocinio</h2>
+            <p>Gestiona aliados comerciales con una vista integrada al panel.</p>
+        </div>
+    </div>
+
+    <form method="post" th:action="@{/sponsorships/admin/save}" id="form-sponsorship-admin" class="sponsorship-create-form">
+        <div class="sponsorship-form-grid">
+            <div class="form-group">
+                <label for="companyCode">Codigo de la Empresa</label>
+                <input type="text" id="companyCode" name="companyCode"
+                       class="form-input" required pattern="[A-Za-z0-9]+" title="Solo letras y numeros"/>
+            </div>
+
+            <div class="form-group">
+                <label for="company">Nombre de la Empresa</label>
+                <input type="text" id="company" name="company"
+                       class="form-input" required pattern="[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+" title="Solo letras y espacios"/>
+            </div>
+
+            <div class="form-group">
+                <label for="phoneNumber">Numero de Telefono</label>
+                <input type="tel" id="phoneNumber" name="phoneNumber"
+                       class="form-input" required pattern="[0-9]{8,15}" title="Ingrese un numero valido de 8 a 15 digitos"/>
+            </div>
+
+            <div class="form-group">
+                <label for="amount">Monto (CRC)</label>
+                <input type="number" step="0.01" min="20000" id="amount" name="amount" class="form-input" required/>
+            </div>
+
+            <div class="form-group">
+                <label for="contractStart">Fecha de Inicio</label>
+                <input type="date" id="contractStart" name="contractStart" class="form-input" required/>
+            </div>
+
+            <div class="form-group">
+                <label for="contractEnd">Fecha de Fin</label>
+                <input type="date" id="contractEnd" name="contractEnd" class="form-input" required/>
+            </div>
+
+            <div class="form-group">
+                <label for="advertisingSpace">Espacio Publicitario</label>
+                <select id="advertisingSpace" name="advertisingSpace" class="form-input" required>
+                    <option value="" selected disabled>Seleccione un espacio</option>
+                    <option value="Banner">Banner</option>
+                    <option value="Pop-up">Pop-up</option>
+                    <option value="Redes sociales">Redes sociales</option>
+                    <option value="Otro">Otro</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="sponsorshipType">Tipo de Patrocinio</label>
+                <select id="sponsorshipType" name="sponsorshipType" class="form-input" required>
+                    <option value="" selected disabled>Seleccione un tipo</option>
+                    <option value="Monetario">Monetario</option>
+                    <option value="En especie">En especie</option>
+                    <option value="Mixto">Mixto</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="sponsorship-form-actions" style="margin-top: 2rem;">
+            <button type="submit" class="btn btn-success">Guardar Patrocinio</button>
+            <a href="/sponsorships/admin/list" class="btn btn-secondary btn-back-list">Cancelar y Volver</a>
+        </div>
+    </form>
+
+    <div id="errores-data" th:if="${errores}" th:data-errores="${errores}" style="display: none;"></div>
+</div>

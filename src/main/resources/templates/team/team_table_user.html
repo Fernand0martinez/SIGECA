@@ -1,0 +1,34 @@
+<div id="team-table">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Capitán</th>
+        <th># Jugadores</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr th:if="${noResults}">
+        <td colspan="4" class="no-results" th:text="${noResult}"></td>
+      </tr>
+      <tr th:each="team : ${teams}">
+        <td th:text="${team.name}"></td>
+        <td th:text="${team.captain != null ? team.captain.name : '-'}"></td>
+        <td th:text="${team.players.size()}"></td>
+        <td>
+          <button type="button"
+                  class="button button--warning"
+                  th:attr="onclick=|toggleFormUser(true,{id:'${team.id}'})|">
+            Editar
+          </button>
+          <button type="button"
+                  class="button button--error delete-btn"
+                  th:data-id="${team.id}">
+            Eliminar
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

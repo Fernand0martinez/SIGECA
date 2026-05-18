@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<!--
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this template
+-->
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Lista de Torneos</title>
+        <link rel="stylesheet" th:href="@{/css/tournament.css}">
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    </head>
+    <body>
+        <div class="tournament-container" th:fragment="contenido">
+            <h2>Lista de Torneos</h2>
+
+            <div class="main-content">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Fecha de Inicio</th>
+                                <th>Fecha de Cierre</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="tournament : ${tournaments}">
+                                <td th:text="${tournament.name}">Nombre Torneo</td>
+                                <td th:text="${tournament.startDate}">01/01/2025</td>
+                                <td th:text="${tournament.endDate}">10/01/2025</td>
+                                <td th:text="${tournament.status? 'En curso': 'Finalizado'}">Activo</td>
+                                <td>
+                                    <a href="#" onclick="return window.navegar ? (window.navegar('equipo'), false) : true;" class="action-btn">Inscribirse</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

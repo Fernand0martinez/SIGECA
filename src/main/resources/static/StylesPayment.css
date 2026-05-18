@@ -1,0 +1,200 @@
+/* Estilos generales y reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: transparent;
+    color: #333;
+    line-height: 1.4;
+}
+
+/* Contenedor principal - optimizado para AJAX */
+.page-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0.5rem;
+    overflow-y: auto;
+    /* Mantiene el tamaño original */
+    height: auto;
+    min-height: unset;
+}
+
+/* Encabezado de página más compacto */
+.page-header {
+    margin-bottom: 0.75rem;
+    text-align: center;
+}
+
+.page-title {
+    color: #2c3e50;
+    font-size: 1.4rem;
+    margin-bottom: 0.3rem;
+}
+
+.page-subtitle {
+    color: #7f8c8d;
+    font-size: 0.85rem;
+}
+
+/* Tarjetas más compactas */
+.card {
+    background-color: #fff;
+    border-radius: 6px;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 0.75rem;
+    overflow: hidden;
+}
+
+.card-header {
+    background-color: #3498db;
+    color: white;
+    padding: 0.5rem 0.75rem;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.card-body {
+    padding: 0.75rem;
+}
+
+/* Detalles de reservación más compactos */
+.details-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    justify-content: space-between;
+}
+
+.details-grid > div {
+    flex: 1;
+    min-width: 120px;
+}
+
+.detail-group {
+    margin-bottom: 0.5rem;
+}
+
+.detail-label {
+    display: block;
+    font-size: 0.75rem;
+    color: #7f8c8d;
+    margin-bottom: 0.1rem;
+}
+
+.detail-value {
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 0.9rem;
+}
+
+/* Resumen de precio más compacto */
+.price-summary {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid #eee;
+}
+
+.price-label {
+    font-weight: 600;
+    margin-right: 0.75rem;
+    font-size: 0.9rem;
+}
+
+.price-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #27ae60;
+}
+
+/* Formulario más compacto */
+.form-container {
+    padding: 0.75rem;
+}
+
+.form-group {
+    margin-bottom: 0.75rem;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.3rem;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.4rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+textarea.form-control {
+    height: 60px;
+    resize: vertical;
+}
+
+/* Botón más compacto */
+.btn {
+    display: inline-block;
+    padding: 0.4rem 1rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-primary {
+    background-color: #3498db;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+}
+
+/* Nota de seguridad más compacta */
+.security-note {
+    display: flex;
+    align-items: center;
+    margin-top: 0.75rem;
+    padding: 0.5rem;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    color: #7f8c8d;
+    font-size: 0.8rem;
+}
+
+.security-note svg {
+    margin-right: 0.3rem;
+    color: #3498db;
+    width: 12px;
+    height: 12px;
+}
+
+/* Mantener el diseño responsive pero más ajustado */
+@media (max-width: 600px) {
+    .details-grid {
+        flex-direction: column;
+    }
+    
+    .page-container {
+        padding: 0.4rem;
+    }
+    
+    .price-value {
+        font-size: 1.1rem;
+    }
+}

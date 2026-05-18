@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Editar Patrocinio | SIGECA</title>
+        <link rel="stylesheet" th:href="@{/css/back-button.css}">
+        <link rel="stylesheet" th:href="@{/css/sponsorship.css}">
+    </head>
+    <body>
+        <a class="back-top-btn" href="#" onclick="return window.dashboardBack ? window.dashboardBack('patrocinio') : false;">Volver</a>
+        <div class="layout-center">
+            <div class="container sponsorship-module" th:fragment="contenido">
+                <div class="sponsorship-header">
+                    <div>
+                        <h2>Editar Patrocinio</h2>
+                        <p>Ajusta montos, vigencia y espacios publicitarios del convenio.</p>
+                    </div>
+                </div>
+
+                <form th:action="@{/sponsorships/admin/update}" method="post" class="sponsorship-update-form">
+                    <div class="sponsorship-form-grid">
+                        <div>
+                            <label for="companyCode">Codigo</label>
+                            <input type="hidden" id="companyCode" name="companyCode" th:value="${sponsorship.id}" required>
+                            <input type="text" th:value="${sponsorship.id}" class="form-input" disabled>
+                        </div>
+
+                        <div>
+                            <label for="company">Compania</label>
+                            <input type="text" id="company" name="company" th:value="${sponsorship.company}" class="form-input" required>
+                        </div>
+
+                        <div>
+                            <label for="amount">Monto</label>
+                            <input type="number" id="amount" name="amount" th:value="${sponsorship.amount}" class="form-input" required>
+                        </div>
+
+                        <div>
+                            <label for="phoneNumber">Telefono</label>
+                            <input type="text" id="phoneNumber" name="phoneNumber" th:value="${sponsorship.phoneNumber}" class="form-input" required>
+                        </div>
+
+                        <div>
+                            <label for="contractStart">Inicio del Contrato</label>
+                            <input type="date" id="contractStart" name="contractStart" th:value="${sponsorship.contractStart}" class="form-input" required>
+                        </div>
+
+                        <div>
+                            <label for="contractEnd">Fin del Contrato</label>
+                            <input type="date" id="contractEnd" name="contractEnd" th:value="${sponsorship.contractEnd}" class="form-input" required>
+                        </div>
+
+                        <div>
+                            <label for="advertisingSpace">Espacio publicitario</label>
+                            <select id="advertisingSpace" name="advertisingSpace" class="form-input" required>
+                                <option value="" disabled>Seleccione un espacio</option>
+                                <option value="Banner" th:selected="${sponsorship.advertisingSpace == 'Banner'}">Banner</option>
+                                <option value="Pop-up" th:selected="${sponsorship.advertisingSpace == 'Pop-up'}">Pop-up</option>
+                                <option value="Redes sociales" th:selected="${sponsorship.advertisingSpace == 'Redes sociales'}">Redes sociales</option>
+                                <option value="Otro" th:selected="${sponsorship.advertisingSpace == 'Otro'}">Otro</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="sponsorshipType">Tipo de patrocinio</label>
+                            <select id="sponsorshipType" name="sponsorshipType" class="form-input" required>
+                                <option value="" disabled>Seleccione un tipo</option>
+                                <option value="Monetario" th:selected="${sponsorship.sponsorshipType == 'Monetario'}">Monetario</option>
+                                <option value="En especie" th:selected="${sponsorship.sponsorshipType == 'En especie'}">En especie</option>
+                                <option value="Mixto" th:selected="${sponsorship.sponsorshipType == 'Mixto'}">Mixto</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="sponsorship-form-actions" style="margin-top: 20px;">
+                        <button type="submit" class="btn btn-success">Guardar Cambios</button>
+                        <button class="btn-cancelar sponsorship-back-list" type="button">Volver</button>
+                        <a href="/sponsorships/admin" class="btn btn-secondary sponsorship-home-link">Inicio</a>
+                    </div>
+                </form>
+
+                <div id="errores-data" th:if="${errores}" th:attr="data-errores=${errores}" style="display: none;"></div>
+            </div>
+        </div>
+    </body>
+</html>

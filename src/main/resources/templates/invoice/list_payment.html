@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Lista de Pagos</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <link rel="stylesheet" th:href="@{/StylesPlayer.css}">
+        <!-- Asegúrate de cargar el script correcto -->
+       <script type="text/javascript" th:src="@{/usuario.js}"></script>  
+    </head>
+    <body>
+        <div class="payment" th:fragment="contenido">
+            <h1>Lista de Pagos</h1>
+
+            <!-- Filtros -->
+            <div class="filters">
+                <div class="filter-group">
+                    <h2>Filtrar por método de pago:</h2> 
+                    <form action="/payments/user/filter" method="get" class="payment-filter-form">
+                        <input type="hidden" name="page" value="1">
+                        <select name="metodo" onchange="this.form.submit()">
+                            <option value="">Seleccionar</option>
+                            <option value="T">Todos</option>
+                            <th:block th:each="method : ${method}">
+                                <option th:value="${method.name}" 
+                                        th:selected="${paymentMethod == method.name()}" 
+                                        th:text="${#strings.capitalize(method.name().toLowerCase().replace('_', ' '))}">
+                                </option>
+                            </th:block>
+                        </select>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Barra de búsqueda
+            <div class="search-container">
+                <form action="/invoice/buscar" method="get">
+                    <input type="text" name="query" placeholder="Buscar pago por fecha..." class="search-input">
+                    <button type="submit" class="search-btn">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                </form>
+            </div> -->
+            <!-- Tabla de pagos -->
+            <div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Usuario</th>
+                            <th>Fecha</th>
+                            <th>Monto</th>
+                            <th>Método</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="pay : ${payment}">
+                            <td th:text="${pay.reservation.user.nameUser}" style="color: blueviolet"></td>
+                            <td th:text="${#temporals.format(pay.paymentDate, 'dd/MM/yyyy')}" style="color: blueviolet"></td>
+                            <td th:text="'$' + ${#numbers.formatDecimal(pay.amount, 1, 2)}" style="color: black"></td>
+                            <td th:text="${#strings.capitalize(pay.method.name().toLowerCase().replace('_', ' '))}" style="color: black"></td>
+                            <td>
+                                <button type="button" class="invoice" th:data-id="${pay.id}">Ver detalles</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination" th:if="${totalPages > 1}">
+                <a th:href="@{/payments/user/filter(metodo=${metodoSeleccionado}, page=1)}"
+                   th:classappend="${currentPage == 1} ? 'disabled'">« Primera</a>
+
+                <a th:href="@{/payments/user/filter(metodo=${metodoSeleccionado}, page=${currentPage - 1})}"
+                   th:classappend="${currentPage == 1} ? 'disabled'">&lt; Anterior</a>
+
+                <span th:each="i : ${#numbers.sequence(1, totalPages)}">
+                    <a th:href="@{/payments/user/filter(metodo=${metodoSeleccionado}, page=${i})}"
+                       th:classappend="${currentPage == i} ? 'active'"
+                       th:text="${i}"></a>
+                </span>
+
+                <a th:href="@{/payments/user/filter(metodo=${metodoSeleccionado}, page=${currentPage + 1})}"
+                   th:classappend="${currentPage == totalPages} ? 'disabled'">Siguiente &gt;</a>
+
+                <a th:href="@{/payments/user/filter(metodo=${metodoSeleccionado}, page=${totalPages})}"
+                   th:classappend="${currentPage == totalPages} ? 'disabled'">Última &raquo;</a>
+            </div>
+
+            <!-- Contenedor para mostrar los detalles de la factura -->
+            <div id="details" ></div>
+
+            <!-- Botones de acción -->
+            <div class="action-buttons">
+                <button type="button" class="btn-secondary dashboard-home-btn">Volver al inicio</button>
+            </div>
+
+            <!-- Mensajes de confirmación -->
+            <div>
+                <script th:if="${mensaje != null}">
+                    Swal.fire(
+                            " [[${type}]]",
+                            " [[${message}]]",
+                            " [[${type}]] "
+                            );
+                </script>
+            </div>
+        </div>
+    </body>
+</html>

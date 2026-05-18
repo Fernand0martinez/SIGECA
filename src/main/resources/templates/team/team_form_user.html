@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8"/>
+        <link rel="stylesheet" th:href="@{/css/styles.css}"/>
+        <link rel="stylesheet" th:href="@{/css/back-button.css}"/>
+    </head>
+    <body>
+        <a class="back-top-btn" href="#" onclick="return window.dashboardBack ? window.dashboardBack('equipo') : false;">← Volver</a>
+        <form th:object="${team}"
+              th:action="@{/teams/user/save}"
+              class="team-form"
+              id="team-form">
+            <fieldset>
+                <legend>
+                    <span th:if="${team.id == null}">Nuevo Equipo</span>
+                    <span th:if="${team.id != null}">Editar Equipo</span>
+                </legend>
+
+                <div class="form-row">
+                    <label for="name">Nombre:</label>
+                    <input type="text"
+                           th:field="*{name}"
+                           id="name"
+                           required/>
+                </div>
+
+                <div class="form-row">
+                    <label for="captain">Capitán:</label>
+                    <select th:field="*{captain.id}" id="captain">
+                        <option value="">-- Seleccionar capitán --</option> 
+                        <option th:each="p : ${players}"
+                                th:value="${p.id}"
+                                th:text="${p.name}"></option>
+                    </select>
+                </div>
+
+                <input type="hidden" th:field="*{id}"/>
+
+                <div class="form-row">
+                    <button th:if="${team.id == null}"
+                            type="submit"
+                            class="button button--success">
+                        Guardar
+                    </button>
+                    <button th:if="${team.id != null}"
+                            type="submit"
+                            class="button button--update">
+                        Actualizar
+                    </button>
+                    <button type="button"
+                            class="button button--neutral"
+                            onclick="cancelFormUser()">
+                        Cancelar
+                    </button>
+                </div>
+            </fieldset>
+        </form>
+    </body>
+</html>

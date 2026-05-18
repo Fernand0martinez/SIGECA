@@ -1,0 +1,77 @@
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Lista de Patrocinios</title>
+        <link rel="stylesheet" th:href="@{/css/sponsorship.css}">
+    </head>
+
+    <body>
+        <div class="sponsorship-module" th:fragment="contenido">
+            <div class="sponsorship-header">
+                <div>
+                    <h1>Patrocinios Registrados</h1>
+                    <p>Administra convenios, campanas y espacios comerciales del club.</p>
+                </div>
+                <div class="sponsorship-actions">
+                    <a href="/sponsorships/admin" class="btn btn-secondary sponsorship-home-link">Inicio</a>
+                    <a href="/sponsorships/admin/form" class="btn btn-success btn-new-sponsorship">Agregar Nuevo</a>
+                </div>
+            </div>
+
+            <form th:action="@{/sponsorships/admin/filter}" method="get" class="sponsorship-filter-form">
+                <div>
+                    <label for="sponsorshipType">Tipo de Patrocinio</label>
+                    <select name="sponsorshipType" id="sponsorshipType">
+                        <option value="0">--Seleccione un tipo--</option>
+                        <option value="monetario" th:selected="${sponsorshipType == 'monetario'}">Monetario</option>
+                        <option value="en especie" th:selected="${sponsorshipType == 'en especie'}">En especie</option>
+                        <option value="mixto" th:selected="${sponsorshipType == 'mixto'}">Mixto</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="advertisingSpace">Espacio Publicitario</label>
+                    <select name="advertisingSpace" id="advertisingSpace">
+                        <option value="0">--Seleccione un espacio--</option>
+                        <option value="Banner" th:selected="${advertisingSpace == 'Banner'}">Banner</option>
+                        <option value="Pop-up" th:selected="${advertisingSpace == 'Pop-up'}">Pop-up</option>
+                        <option value="Redes sociales" th:selected="${advertisingSpace == 'Redes sociales'}">Redes sociales</option>
+                        <option value="Otro" th:selected="${advertisingSpace == 'Otro'}">Otro</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-success">Filtrar</button>
+                <a href="/sponsorships/admin/list" class="btn btn-secondary sponsorship-reset-link">Mostrar Todos</a>
+            </form>
+
+            <div class="sponsorship-table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Compania</th>
+                            <th>Espacio Publicitario</th>
+                            <th>Tipo de Patrocinio</th>
+                            <th>Acciones</th>
+                            <th>Ver Detalles</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="patrocinio : ${patrocinios}">
+                            <td th:text="${patrocinio.company}"></td>
+                            <td th:text="${patrocinio.advertisingSpace}"></td>
+                            <td th:text="${patrocinio.sponsorshipType}"></td>
+                            <td class="actions">
+                                <button class="btn-editar" th:attr="data-id=${patrocinio.id}">Editar</button>
+                                <button class="btn-eliminar" th:attr="data-id=${patrocinio.id}">Eliminar</button>
+                            </td>
+                            <td>
+                                <button class="btn-ver-detalle" th:attr="data-codigo=${patrocinio.id}">Ver Detalles</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="detalle-patrocinio" class="sponsorship-detail"></div>
+        </div>
+    </body>
+</html>

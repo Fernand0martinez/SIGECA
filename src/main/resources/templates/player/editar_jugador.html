@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Editar Jugador | SIGECA</title>
+        <link rel="stylesheet" th:href="@{/css/player-form.css}">
+        <link rel="stylesheet" th:href="@{/css/back-button.css}">
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    </head>
+    <body class="player-page">
+        <div class="player-form-shell" th:fragment="contenido">
+            <a class="back-top-btn" href="#" onclick="return window.dashboardBack ? window.dashboardBack('jugadores', 'jugador') : false;">Volver</a>
+            <div class="player-form-card">
+                <div class="player-form-header">
+                    <h3>Editar jugador</h3>
+                    <p>Actualice la informacion de <span th:text="${p.name}"></span>.</p>
+                </div>
+
+                <div class="player-form-body">
+                    <form method="POST" action="/players/admin/update" class="player-form">
+                        <div class="form-group">
+                            <label for="idCard">Cedula</label>
+                            <input id="idCard" type="text" class="form-control player-form-readonly" name="idCard" th:value="${p.idCard}" readonly>
+                            <input type="hidden" name="id" th:value="${p.id}">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="name">Nombre</label>
+                            <input id="name" type="text" class="form-control" name="name" th:value="${p.name}" required minlength="2" maxlength="45" placeholder="Nombre" pattern="[A-Za-zÁÉÍÓÚáéíóúñÑ\\s]+">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="lastName">Apellido</label>
+                            <input id="lastName" type="text" class="form-control" name="lastName" th:value="${p.lastName}" required minlength="2" maxlength="45" placeholder="Apellido" pattern="[A-Za-zÁÉÍÓÚáéíóúñÑ\\s]+">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="mail">Correo</label>
+                            <input id="mail" type="email" class="form-control" name="mail" th:value="${p.mail}" required minlength="10" maxlength="45" placeholder="Correo">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="age">Edad</label>
+                            <input id="age" type="number" class="form-control" name="age" th:value="${p.age}" required min="5" max="70" placeholder="Edad">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="gender">Genero</label>
+                            <select id="gender" class="form-control" name="gender" required>
+                                <option value="M" th:selected="${p.gender == 'M'}">Masculino</option>
+                                <option value="F" th:selected="${p.gender == 'F'}">Femenino</option>
+                                <option value="O" th:selected="${p.gender == 'O'}">Otro</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="dorsal">Dorsal</label>
+                            <input id="dorsal" type="number" class="form-control" name="dorsal" th:value="${p.dorsal}" min="0" max="999" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="position">Posicion</label>
+                            <select id="position" class="form-control" name="position" required>
+                                <option value="P" th:selected="${p.position == 'P'}">Portero</option>
+                                <option value="D" th:selected="${p.position == 'D'}">Defensa</option>
+                                <option value="M" th:selected="${p.position == 'M'}">Medio campista</option>
+                                <option value="G" th:selected="${p.position == 'G'}">Delantero</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="goal">Goles</label>
+                            <input id="goal" type="number" class="form-control" name="goal" th:value="${p.goal}" min="0" placeholder="Goles">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="assist">Asistencias</label>
+                            <input id="assist" type="number" class="form-control" name="assist" th:value="${p.assist}" min="0" placeholder="Asistencias">
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="admonished">Amonestado</label>
+                            <select id="admonished" class="form-control" name="admonished" required>
+                                <option value="S" th:selected="${p.admonished == 'S'}">Si</option>
+                                <option value="N" th:selected="${p.admonished == 'N'}">No</option>
+                            </select>
+                        </div>
+
+                        <div class="form-actions">
+                            <div class="action-cluster">
+                                <button type="button" class="player-btn player-btn-secondary player-dashboard-home">Volver al inicio</button>
+                                <button type="button" class="player-btn player-btn-secondary player-list-btn">Ir a gestion de jugadores</button>
+                            </div>
+                            <button type="submit" class="player-btn player-btn-primary">Guardar cambios</button>
+                        </div>
+                    </form>
+
+                    <script th:if="${mensaje != null}">
+                        Swal.fire(
+                            "[[${tipo}]]",
+                            "[[${mensaje}]]",
+                            "[[${tipo}]]"
+                        );
+                    </script>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

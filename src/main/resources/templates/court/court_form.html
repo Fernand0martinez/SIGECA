@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" th:href="@{/css/styles.css}"/>
+        <link rel="stylesheet" th:href="@{/css/back-button.css}"/>
+    </head>
+    <body>
+        <div th:fragment="formulario">
+            <a class="back-top-btn" href="#" onclick="if (typeof cancelForm === 'function') { cancelForm(); return false; } return window.dashboardBack ? window.dashboardBack('canchas', 'cancha') : false;">Volver</a>
+            <form th:object="${court}"
+                  th:action="@{/courts/admin/save}"
+                  class="court-form"
+                  id="court-form">
+                <fieldset class="form-fieldset">
+                    <legend class="form-legend">
+                        <span th:if="${court.idCourt == null}">Nueva Cancha</span>
+                        <span th:if="${court.idCourt != null}">Actualizar Cancha</span>
+                    </legend>
+                    <div class="form-group">
+                        <div class="form-row">
+                            <div class="form-input-group">
+                                <input type="text"
+                                       th:field="*{nameCourt}"
+                                       id="nameCourt"
+                                       class="form-input"
+                                       placeholder=" "
+                                       required/>
+                                <span>Nombre de la cancha</span>
+                            </div>
+
+                            <div class="form-input-group location-input">
+                                <input type="text"
+                                       th:field="*{location}"
+                                       id="location"
+                                       class="form-input"
+                                       placeholder=" "
+                                       required/>
+                                <span>Ubicacion</span>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-input-group currency-input">
+                                <input type="text"
+                                       th:field="*{priceByHour}"
+                                       id="priceByHour"
+                                       class="form-input"
+                                       required/>
+                                <span>Precio / hora</span>
+                            </div>
+
+                            <div class="form-input-group">
+                                <select th:field="*{statusCourt}" id="statusCourt" class="form-input" required>
+                                    <option value="" hidden>Seleccione una opcion</option>
+                                    <option value="Disponible">Disponible</option>
+                                    <option value="No Disponible">No Disponible</option>
+                                    <option value="En Mantenimiento">En Mantenimiento</option>
+                                </select>
+                                <span>Estado</span>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-input-group">
+                                <select th:field="*{typeOfCourt}"
+                                        id="typeOfCourt"
+                                        class="form-input"
+                                        required>
+                                    <option value="" hidden>Seleccione una opcion</option>
+                                    <option value="Fútbol 5">Fútbol 5</option>
+                                    <option value="Fútbol 6">Fútbol 6</option>
+                                    <option value="Fútbol 7">Fútbol 7</option>
+                                    <option value="Fútbol 11">Fútbol 11</option>
+                                    <option value="Futsal">Futsal</option>
+                                    <option value="Fútbol Playa">Fútbol Playa</option>
+                                </select>
+                                <span>Tipo de cancha</span>
+                            </div>
+
+                            <div class="form-input-group">
+                                <select th:field="*{surfaceType}" id="surfaceType" class="form-input" required>
+                                    <option value="" hidden>Seleccione una opcion</option>
+                                    <option value="Césped Natural">Césped Natural</option>
+                                    <option value="Césped Sintético">Césped Sintético</option>
+                                    <option value="Cemento">Cemento</option>
+                                    <option value="Madera">Madera</option>
+                                    <option value="Arena">Arena</option>
+                                </select>
+                                <span>Tipo de Superficie</span>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="checkbox-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" th:field="*{lighting}" id="lighting" class="checkbox-input">
+                                    <span>Iluminacion</span>
+                                </label>
+
+                                <label class="checkbox-label">
+                                    <input type="checkbox" th:field="*{isIndoor}" id="isIndoor" class="checkbox-input">
+                                    <span>Techado</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <input type="hidden" th:field="*{idCourt}"/>
+
+                    <div class="form-row">
+                        <button th:if="${court.idCourt == null}"
+                                type="submit"
+                                class="button button--success"
+                                id="btn-submit">
+                            Guardar
+                        </button>
+
+                        <button th:if="${court.idCourt != null}"
+                                type="submit"
+                                class="button button--update"
+                                id="btn-submit">
+                            Actualizar
+                        </button>
+
+                        <button type="button"
+                                class="button button--neutral"
+                                onclick="cancelForm()">
+                            Cancelar
+                        </button>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+    </body>
+</html>

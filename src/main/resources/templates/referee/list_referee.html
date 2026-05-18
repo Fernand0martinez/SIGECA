@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<link rel="stylesheet" th:href="@{/css/referee.css}">
+<div class="referee-management-container" th:fragment="contenido">
+    <h2>Lista de Árbitros</h2>
+
+    <form method="GET" action="/referees/admin/list" id="filter-form" class="filter-container">
+        <div class="filter-group">
+            <label for="gen">Género:</label>
+            <select name="gen" id="gen" class="filter-select">
+                <option value="">Todos</option>
+                <option value="Masculino">Masculino</option>
+                <option value="Femenino">Femenino</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label for="available">Disponible:</label>
+            <select name="available" id="available" class="filter-select">
+                <option value="">Todos</option>
+                <option value="true">Sí</option>
+                <option value="false">No</option>
+            </select>
+        </div>
+
+        <div class="button-group">
+            <button type="submit" class="filter-button">Filtrar</button>
+            <button type="button" id="reset-btn" class="reset-button">Reestablecer</button>
+        </div>
+    </form>
+
+    <div class="table-wrapper">
+        <table class="referees-table">
+            <thead>
+                <tr>
+                    <th class="col-id">Cédula</th>
+                    <th class="col-name">Nombre</th>
+                    <th class="col-lastname">Apellido</th>
+                    <th class="col-email">Email</th>
+                    <th class="col-age">Edad</th>
+                    <th class="col-gender">Género</th>
+                    <th class="col-exp">Experiencia</th>
+                    <th class="col-available">Disponible</th>
+                    <th class="col-actions">Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="referee-table-body">
+                <tr th:each="referee : ${referee}">
+                    <td th:text="${referee.idCard}"></td>
+                    <td th:text="${referee.name}"></td>
+                    <td th:text="${referee.lastName}"></td>
+                    <td th:text="${referee.mail}"></td>
+                    <td th:text="${referee.age}"></td>
+                    <td th:text="${referee.gender} == 'M' ? 'Masculino' : 'Femenino'"></td>
+                    <td th:text="${referee.experience}"></td>
+                    <td th:text="${referee.available ? 'Sí' : 'No'}"></td>
+                    <td>
+                        <a th:href="@{/referees/admin/edit(idR=${referee.id})}" class="action-btn btn-edit-referee">Editar</a>
+                        <form th:action="@{/referees/admin/delete}" method="post" style="display:inline;" class="referee-delete-form">
+                            <input type="hidden" name="idR" th:value="${referee.id}">
+                            <button type="submit" class="action-btn btn-delete" style="border:none; cursor:pointer;">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="add-referee-container">
+        <a th:href="@{/referees/admin/form}" class="add-button add-referee-link">Agregar Nuevo Árbitro</a>
+    </div>
+</div>

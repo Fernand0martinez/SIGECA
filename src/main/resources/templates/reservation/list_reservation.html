@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" th:href="@{/StyleList_reservation.css}">
+        <script type="text/javascript" th:src="@{/usuario.js}"></script>
+        <title>Lista de Reservaciones</title>
+    </head>
+    <body>
+        <div class="table-wrapper" th:fragment="contenido">
+            <div class="header-container">
+                <h1>Mis Reservaciones</h1>
+                <div class="button-container">
+                    <a href="/reservations/user" class="btn-inicio dashboard-home-link">Inicio</a>
+                    <a href="/reservations/user/form" class="btn-agregar-nuevo">Agregar Reservacion</a>
+                </div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>Nombre del Usuario</th>
+                        <th>Cancha</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                        <th>Detalles</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="res : ${reservacion}">
+                        <td th:text="${res.date}">2025-01-01</td>
+                        <td th:text="${res.startHour}">10</td>
+                        <td th:text="${res.user.name}">Juan Perez</td>
+                        <td th:text="${res.court.nameCourt}">Camp Nou</td>
+                        <td>
+                            <span class="status"
+                                  th:classappend="${res.status == 'Pendiente' ? 'status-pendiente' :
+                                  res.status == 'Confirmada' ? 'status-confirmada' :
+                                  res.status == 'Pagada' ? 'status-pagada' : 'status-cancelada'}"
+                                  th:text="${res.status}"></span>
+                        </td>
+                        <td class="actions">
+                            <button th:if="${res.status == 'Reservada'}" class="btn-eliminar" th:attr="data-id=${res.id}">Cancelar</button>
+                            <button th:if="${res.status == 'Reservada'}" class="btn-editar" th:attr="data-id=${res.id}">Editar</button>
+                            <button th:if="${res.status == 'Reservada'}" type="button" class="paid" th:data-id="${res.id}">Realizar pago</button>
+                        </td>
+                        <td>
+                            <button type="button" class="btn-ver-detalle" th:attr="data-codigo=${res.id}">Ver detalles</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div id="detalle-reservacion"></div>
+            <div id="payment"></div>
+
+            <div>
+                <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+                <script th:if="${mensaje != null}">
+                    Swal.fire(
+                        " [[${tipo}]]",
+                        " [[${mensaje}]]",
+                        " [[${tipo}]] "
+                    );
+                </script>
+            </div>
+
+            <div>
+                <script th:if="${mensaje != null}">
+                    Swal.fire(
+                        "[[${type}]]",
+                        "[[${message}]]",
+                        "[[${type}]]"
+                    );
+                </script>
+            </div>
+        </div>
+        <script type="text/javascript" th:src="@{/deleteReservation.js}"></script>
+        <script type="text/javascript" th:src="@{/detailsReservation.js}"></script>
+        <script type="text/javascript" th:src="@{/updateReservation.js}"></script>
+    </body>
+</html>

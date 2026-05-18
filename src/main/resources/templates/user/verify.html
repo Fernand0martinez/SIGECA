@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificar Cuenta | SIGECA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/login-sports.css}">
+</head>
+<body class="login-page">
+    <main class="login-shell">
+        <section class="login-panel">
+            <div class="login-badge">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm4.59-12.42L10 14.17l-2.59-2.58L6 13l4 4 8-8z"/></svg>
+                VERIFICACIÓN DE CUENTA
+            </div>
+            <h1>¡Confirma tu Ficha!</h1>
+            <p class="login-subtitle">Hemos enviado un código a tu correo electrónico. Por favor, ingrésalo para activar tu usuario.</p>
+
+            <form class="login-form" th:action="@{/login/verify}" method="POST">
+                <input type="hidden" name="username" th:value="${username}">
+                
+                <div class="form-group">
+                    <label for="code">Código de 6 Dígitos</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="code" name="code" placeholder="Ej: 123456" required maxlength="6" pattern="\d{6}" style="text-align: center; font-size: 24px; letter-spacing: 5px;">
+                    </div>
+                    <span class="field-info">Revisa tu bandeja de entrada (y la carpeta de spam).</span>
+                </div>
+
+                <div th:if="${error}" class="error-message">
+                    <strong>¡Error!</strong> <span th:text="${error}">Código inválido</span>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    ACTIVAR CUENTA
+                </button>
+            </form>
+
+            <div class="footer-links">
+                <a th:href="@{/login/home}" class="register-link">
+                    ← Volver al inicio
+                </a>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

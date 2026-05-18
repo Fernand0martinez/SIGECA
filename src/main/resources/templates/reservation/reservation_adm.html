@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" th:href="@{/StyleList_reservation.css}">
+        <title>Lista de Reservaciones</title>
+
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    </head>
+    <body>
+        <div class="table-wrapper">
+            <div class="header-container">
+                <h1>Listado de Reservaciones</h1>
+                <div class="button-container">
+                    <a href="/reservations/admin" class="btn-inicio">Inicio</a>
+                </div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>Nombre del Usuario</th>
+                        <th>Tipo de Cancha</th>
+                        <th>Estado</th>
+                        <th>Detalles</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="res : ${reservacion}">
+                        <td th:text="${res.date}">2025-01-01</td>
+                        <td th:text="${res.startHour}">10</td>
+                        <td th:text="${res.user.name}">Juan Pérez</td>
+                        <td th:text="${res.court.typeOfCourt}">Fútbol 5</td>
+                        <td>
+                            <span class="status" 
+                                  th:classappend="${res.status == 'Pendiente' ? 'status-pendiente' : 
+                                  res.status == 'Confirmada' ? 'status-confirmada' : 
+                                  res.status == 'Pagada' ? 'status-pagada' : 'status-cancelada'}"
+                                  th:text="${res.status}"></span>
+                        </td>
+                        <td>
+                            <button class="btn-ver-detalle" th:attr="data-codigo=${res.id}">Ver Detalles</button>
+
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- Contenedor donde se mostrará el detalle -->
+        <div id="detalle-reservacion">
+
+        </div>
+
+        <div>
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            <script th:if="${mensaje != null}">
+                Swal.fire(
+                        " [[${tipo}]]",
+                        " [[${mensaje}]]",
+                        " [[${tipo}]] "
+                        );
+            </script>
+        </div>
+
+        <!-- Script para mostrar SweetAlert si hay un mensaje -->
+        <div>
+            <script th:if="${mensaje != null}">
+                Swal.fire(
+                        "[[${type}]]",
+                        "[[${message}]]",
+                        "[[${type}]]"
+                        );
+            </script>
+        </div>
+    </body>
+</html>

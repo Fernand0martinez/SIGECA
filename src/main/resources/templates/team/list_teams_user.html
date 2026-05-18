@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <link rel="stylesheet" th:href="@{/css/styles.css}"/>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <title>Mi Equipo</title>
+</head>
+<body>
+  <main class="main" th:fragment="main">
+    <h1 class="main-title" th:text="${title}">Mi Equipo</h1>
+
+    <div id="container-messages" style="display:none;">
+      <div th:if="${success}" class="success" th:text="${success}"></div>
+      <div th:if="${error}"   class="error"   th:text="${error}"></div>
+    </div>
+
+    <div class="filters-container">
+      <button type="button"
+              class="button button--primary"
+              id="btn-new-team">Agregar</button>
+      <form id="filter-form"
+            th:action="@{/teams/user/filter}"
+            class="filter-form">
+        <input type="text"
+               id="search_query"
+               name="query"
+               class="form-input"
+               placeholder="Search teams..."
+               th:value="${param.query}"/>
+        <button type="submit"
+                class="button button--neutral">Filtrar</button>
+      </form>
+    </div>
+
+    <div id="team-form-container"></div>
+    <div id="team-table-container">
+      <div th:replace="~{team/team_table_user}"></div>
+    </div>
+  </main>
+</body>
+</html>

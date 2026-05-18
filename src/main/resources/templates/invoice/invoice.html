@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Factura de Pago</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #f1c40f;
+            --light-gray: #f8f9fa;
+            --border-color: #dee2e6;
+            --text-color: #333;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.4;
+            color: var(--text-color);
+            background-color: transparent;
+        }
+        
+        .invoice-container {
+            max-width: 100%;
+            background-color: white;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .invoice-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .invoice-title {
+            font-size: 18px;
+            font-weight: 700;
+            display: inline-block;
+        }
+        
+        .invoice-number {
+            font-size: 14px;
+            background-color: var(--secondary-color);
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-weight: 600;
+        }
+        
+        .invoice-body {
+            padding: 15px;
+        }
+        
+        .flex-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .flex-column {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .detail-section {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: var(--light-gray);
+            border-radius: 4px;
+            border-left: 3px solid var(--secondary-color);
+        }
+        
+        .section-title {
+            color: var(--primary-color);
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .detail-grid {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 5px 10px;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--primary-color);
+        }
+        
+        .detail-value {
+            font-size: 13px;
+        }
+        
+        .payment-table {
+            width: 100%;
+            font-size: 13px;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        
+        .payment-table th, .payment-table td {
+            padding: 8px 10px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .payment-table th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            font-size: 12px;
+        }
+        
+        .amount-row {
+            font-weight: 700;
+            background-color: var(--light-gray);
+        }
+        
+        .confirmation {
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            background-color: var(--light-gray);
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        
+        .stamp {
+            display: inline-block;
+            padding: 5px 10px;
+            border: 2px solid var(--accent-color);
+            border-radius: 4px;
+            color: var(--primary-color);
+            font-weight: 700;
+            transform: rotate(-5deg);
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+        
+        .thank-you {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .footer {
+            text-align: center;
+            color: #777;
+            font-size: 12px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 10px;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .flex-container {
+                flex-direction: column;
+            }
+            
+            .payment-table, .payment-table tbody, .payment-table tr, .payment-table td, .payment-table th {
+                display: block;
+            }
+            
+            .payment-table th {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+            
+            .payment-table td {
+                position: relative;
+                padding-left: 50%;
+                text-align: right;
+                border-bottom: 0;
+            }
+            
+            .payment-table td:last-child {
+                border-bottom: 1px solid var(--border-color);
+            }
+            
+            .payment-table td:before {
+                position: absolute;
+                left: 10px;
+                width: 45%;
+                padding-right: 10px;
+                white-space: nowrap;
+                text-align: left;
+                font-weight: 600;
+                content: attr(data-label);
+            }
+            
+            .confirmation {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-container" th:fragment="contenido">
+        <div class="invoice-header">
+            <div class="invoice-title">Factura de Pago</div>
+            <div class="invoice-number">
+                Ref: <span th:text="${payment.id}">12345</span>
+            </div>
+        </div>
+        
+        <div class="invoice-body">
+            <div class="flex-container">
+                <!-- Cliente y Pago -->
+                <div class="flex-column">
+                    <div class="detail-section">
+                        <div class="section-title">Datos del Cliente y Pago</div>
+                        <div class="detail-grid">
+                            <div class="detail-label">Nombre completo:</div>
+                            <div class="detail-value" th:text="${payment.reservation.user.name}+'     '+${payment.reservation.user.lastName}">Nombre </div>
+                             <div class="detail-label">Usuario en el sistema:</div>
+                            <div class="detail-value" th:text="${payment.reservation.user.nameUser}">Nombre Usuario</div>
+                            <div class="detail-label">Fecha de Pago:</div>
+                            <div class="detail-value" th:text="${#temporals.format(payment.paymentDate, 'dd/MM/yyyy HH:mm')}">01/01/2023 15:30</div>
+                            
+                            <div class="detail-label">Monto a pagar:</div>
+                            <div class="detail-value" th:text="${'CRC ' + #numbers.formatDecimal(payment.amount, 1, 2)}">CRC 100.00</div>
+                            
+                            <div class="detail-label">Método de pago:</div>
+                            <div class="detail-value" th:text="${#strings.capitalize(payment.method.name().toLowerCase().replace('_', ' '))}">Tarjeta</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Reservación -->
+                <div class="flex-column">
+                    <div class="detail-section">
+                        <div class="section-title">Detalles de la Reservación</div>
+                        <div class="detail-grid">
+                            <div class="detail-label">Cancha:</div>
+                            <div class="detail-value" th:text="${payment.reservation.court.nameCourt}">Cancha A</div>
+                            
+                            <div class="detail-label">Fecha:</div>
+                            <div class="detail-value" th:text="${#temporals.format(payment.reservation.date, 'dd/MM/yyyy')}">01/01/2023</div>
+                            
+                            <div class="detail-label">Horario:</div>
+                            <div class="detail-value">
+                                <span th:text="${payment.reservation.startHour}">10:00</span> - 
+                                <span th:text="${payment.reservation.endHour}">11:00</span>
+                            </div>
+                            
+                            <div class="detail-label" th:if="${payment.description != null and !payment.description.isEmpty()}">Observaciones:</div>
+                            <div class="detail-value" th:if="${payment.description != null and !payment.description.isEmpty()}" th:text="${payment.description}">Sin observaciones</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tabla de Pago Resumida -->
+            <table class="payment-table">
+                <thead>
+                    <tr>
+                        <th>Concepto</th>
+                        <th>Detalle</th>
+                        <th>Valor</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td data-label="Concepto">Reservación</td>
+                        <td data-label="Detalle">
+                            <span th:text="${payment.reservation.court.nameCourt}">Cancha A</span> -
+                            <span th:text="${#temporals.format(payment.reservation.date, 'dd/MM/yyyy')}">01/01/2023</span>
+                        </td>
+                        <td data-label="Valor" th:text="${'CRC ' + #numbers.formatDecimal(payment.amount, 1, 2)}">CRC 100.00</td>
+                    </tr>
+                    <tr class="amount-row">
+                        <td data-label="Concepto">Total Pagado</td>
+                        <td data-label="Detalle"></td>
+                        <td data-label="Valor" th:text="${'CRC ' + #numbers.formatDecimal(payment.amount, 1, 2)}">CRC 100.00</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="confirmation">
+                <div class="stamp">Pago Completado</div>
+                <div class="thank-you">¡Gracias por su pago!</div>
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="invoice-actions no-print" style="margin-top: 20px; display: flex; gap: 10px; justify-content: center;">
+                <a th:href="${'/payments/user/download?id=' + payment.id}" th:attr="data-id=${payment.id}" class="btn-action download-btn" 
+                   style="background-color: #e74c3c; color: white; padding: 8px 15px; border-radius: 4px; text-decoration: none; font-weight: 600; font-size: 13px;">
+                   Descargar PDF
+                </a>
+                <button type="button" class="btn-action email-btn" th:attr="data-id=${payment.id}"
+                        style="background-color: #27ae60; color: white; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 13px;">
+                   Enviar por Correo
+                </button>
+            </div>
+            
+            <div class="footer">
+                Este documento es un comprobante de pago y no un documento fiscal.
+            </div>
+        </div>
+    </div>
+</body>
+</html>

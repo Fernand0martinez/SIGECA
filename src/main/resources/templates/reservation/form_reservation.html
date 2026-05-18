@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Formulario de Reservacion | SIGECA</title>
+        <link rel="stylesheet" th:href="@{/css/reservation-form.css}">
+        <link rel="stylesheet" th:href="@{/css/back-button.css}">
+    </head>
+    <body class="reservation-page">
+        <div class="reservation-shell" th:fragment="contenido">
+            <a class="back-top-btn" href="#" onclick="return window.dashboardBack ? window.dashboardBack('reservaciones') : false;">Volver</a>
+            <div class="reservation-card">
+                <div class="reservation-card-header">
+                    <h2>Hacer una reservacion</h2>
+                    <p>Complete la fecha, horario y cancha para registrar su reserva.</p>
+                </div>
+
+                <div class="reservation-card-body">
+                    <p class="reservation-user">Usuario actual: <span th:text="${usuario.nameUser}">Nombre de usuario</span></p>
+
+                    <form method="post" action="/reservations/user/save" class="reservation-form">
+                        <div class="reservation-field">
+                            <label for="date">Fecha</label>
+                            <input type="date" id="date" name="date" required>
+                        </div>
+
+                        <div class="reservation-field">
+                            <label for="courtId">Cancha</label>
+                            <select id="courtId" name="courtId" required>
+                                <option value="" disabled selected>Seleccione una cancha</option>
+                                <option th:each="c : ${courts}" th:value="${c.idCourt}" th:text="${c.nameCourt}">Cancha</option>
+                            </select>
+                        </div>
+
+                        <div class="reservation-field">
+                            <label for="hour">Hora de inicio</label>
+                            <input type="number" id="hour" name="startHour" min="6" max="22" required>
+                        </div>
+
+                        <div class="reservation-field">
+                            <label for="endHour">Hora de fin</label>
+                            <input type="number" id="endHour" name="endHour" min="6" max="22" required>
+                        </div>
+
+                        <div class="reservation-actions">
+                            <div class="reservation-action-group">
+                                <a href="#" class="reservation-btn reservation-btn-secondary" onclick="return window.dashboardBack ? window.dashboardBack('reservaciones') : false;">Volver</a>
+                            </div>
+                            <button type="submit" class="reservation-btn reservation-btn-primary">Guardar reservacion</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <div>
+            <script th:if="${mensaje != null}">
+                Swal.fire(
+                    " [[${tipo}]]",
+                    " [[${mensaje}]]",
+                    " [[${tipo}]] "
+                );
+            </script>
+        </div>
+    </body>
+</html>

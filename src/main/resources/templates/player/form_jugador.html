@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <title>Registro de Jugadores | SIGECA</title>
+        <link rel="stylesheet" th:href="@{/css/player-form.css}">
+        <link rel="stylesheet" th:href="@{/css/back-button.css}">
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    </head>
+    <body class="player-page">
+        <div class="player-form-shell" th:fragment="contenido">
+            <a class="back-top-btn" href="#" onclick="return window.dashboardBack ? window.dashboardBack('jugadores', 'jugador') : false;">Volver</a>
+            <div class="player-form-card">
+                <div class="player-form-header">
+                    <h3>Registro de jugadores</h3>
+                    <p>Complete la informacion del jugador para agregarlo al sistema.</p>
+                </div>
+
+                <div class="player-form-body">
+                    <form method="POST" action="/players/admin/save" class="player-form">
+                        <div class="form-group">
+                            <label for="id">Cedula</label>
+                            <input id="id" type="text" class="form-control" name="id" minlength="8" maxlength="12" placeholder="Ej: 12345678" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="name">Nombre</label>
+                            <input id="name" type="text" class="form-control" name="name" minlength="2" maxlength="45" placeholder="Nombre" required pattern="[A-Za-zÁÉÍÓÚáéíóúñÑ\\s]+">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="lastName">Apellido</label>
+                            <input id="lastName" type="text" class="form-control" name="lastName" minlength="2" maxlength="45" placeholder="Apellido" required pattern="[A-Za-zÁÉÍÓÚáéíóúñÑ\\s]+">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="mail">Correo</label>
+                            <input id="mail" type="email" class="form-control" name="mail" minlength="10" maxlength="45" placeholder="correo@ejemplo.com" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="age">Edad</label>
+                            <input id="age" type="number" class="form-control" name="age" min="5" max="65" placeholder="Edad" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="gender">Genero</label>
+                            <select id="gender" class="form-control" name="gender" required>
+                                <option value="M">Masculino</option>
+                                <option value="F">Femenino</option>
+                                <option value="O">Otro</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="dorsal">Dorsal</label>
+                            <input id="dorsal" type="number" class="form-control" name="dorsal" min="0" max="999" placeholder="Numero de uniforme" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="position">Posicion</label>
+                            <select id="position" class="form-control" name="position" required>
+                                <option value="P">Portero</option>
+                                <option value="D">Defensa</option>
+                                <option value="M">Medio campista</option>
+                                <option value="G">Delantero</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="goal">Goles</label>
+                            <input id="goal" type="number" class="form-control" name="goal" min="0" placeholder="Goles" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="assist">Asistencias</label>
+                            <input id="assist" type="number" class="form-control" name="assist" min="0" placeholder="Asistencias" required>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="admonished">Amonestado</label>
+                            <select id="admonished" class="form-control" name="admonished" required>
+                                <option value="N">No</option>
+                                <option value="S">Si</option>
+                            </select>
+                        </div>
+
+                        <div class="form-actions">
+                            <div class="action-cluster">
+                                <button type="button" class="player-btn player-btn-secondary player-dashboard-home">Volver al inicio</button>
+                                <button type="button" class="player-btn player-btn-secondary player-list-btn">Ir a gestion de jugadores</button>
+                            </div>
+                            <button type="submit" class="player-btn player-btn-primary">Guardar jugador</button>
+                        </div>
+                    </form>
+
+                    <script th:if="${mensaje != null}">
+                        Swal.fire(
+                            "[[${tipo}]]",
+                            "[[${mensaje}]]",
+                            "[[${tipo}]]"
+                        );
+                    </script>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

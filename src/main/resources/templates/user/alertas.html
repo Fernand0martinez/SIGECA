@@ -1,0 +1,11 @@
+<!-- archivo: templates/alertas.html -->
+<div th:fragment="alerta" th:if="${mensaje != null}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        Swal.fire(
+            '[[${tipo}]]',
+            '[[${mensaje}]]',
+            '[[${tipo}]]'
+        );
+    </script>
+</div>

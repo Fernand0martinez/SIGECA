@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" th:href="@{/css/styles.css}"/>
+    </head>
+    <body>
+        <div id="court-table">            
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>                        
+                        <th>Ubicación</th>
+                        <th>Precio por Hora</th>
+                        <th>Estado</th>
+                        <th>Tipo</th>
+                        <th>Superficie</th>
+                        <th>Iluminación</th>
+                        <th>Techada</th>                       
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:if="${noResults}">
+                        <td colspan="8" class="no-results" th:text="${noResult}"></td>
+                    </tr>
+                    <tr th:each="court : ${courts}">
+                        <td th:text="${court.nameCourt}"></td>
+                        <td th:text="${court.location}"></td>
+                        <td th:with="price=${#numbers.formatDecimal(court.priceByHour, 1, 'COMMA', 2, 'POINT')}"
+                            th:text="'₡' + (${price.endsWith('.00')} ? ${#strings.substring(price, 0, #strings.length(price)-3)} : ${price})">
+                        </td>
+                        <td th:text="${court.statusCourt}"></td>
+                        <td th:text="${court.typeOfCourt}"></td>
+                        <td th:text="${court.surfaceType}"></td>
+                        <td th:text="${court.lighting ? 'Sí' : 'No'}"></td>
+                        <td th:text="${court.isIndoor ? 'Sí' : 'No'}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </body>
+</html>

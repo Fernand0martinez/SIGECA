@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Jugadores</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script text="text/javascript" th:src="@{/player/deletePlayer.js}"></script>
+    <script text="text/javascript" th:src="@{/player/editPlayer.js}"></script>
+    <script text="text/javascript" th:src="@{/player/detallesJugador.js}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" th:href="@{/StylesPlayer.css}">
+</head>
+<body>
+    <div class="player-list-container" th:fragment="contenido">
+        <h1>Lista de Jugadores</h1>
+        
+        <!-- Filtros -->
+        <div class="filters">
+            <div class="filter-group">
+                <h2>Filtrar por posición:</h2>
+                <form action="/players/filter" method="get">
+                    <input type="hidden" name="page" value="1">
+                    <select name="position" onchange="this.form.submit()">
+                        <option value=" ">Seleccionar</option>
+                        <option value="T">Todos</option>
+                        <option value="P">Portero</option>
+                        <option value="D">Defensa</option>
+                        <option value="M">Medio Campista</option>
+                        <option value="G">Delantero</option>
+                    </select>
+                </form>
+            </div>
+            <div class="filter-group">
+                <h2>Filtrar por género:</h2> 
+                <form action="/players/filter" method="get">
+                    <input type="hidden" name="page" value="1">
+                    <select name="genero" onchange="this.form.submit()">
+                        <option value=" ">Seleccionar</option>
+                        <option value="T">Todos</option>
+                        <option value="M">Masculino</option>
+                        <option value="F">Femenino</option>
+                        <option value="O">Otro</option>
+                    </select>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Tabla de jugadores -->
+        <div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Cedula</th>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Email</th>
+                        <th>Ver detalles</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="p : ${players}">
+                        <td th:text="${p.idCard}" style="color:#856404"/>
+                        <td th:text="${p.name?: 'N/A'}" style="color: blueviolet"/>
+                        <td th:text="${p.lastName ?: 'N/A'}" style="color: blueviolet"></td>
+                        <td th:text="${p.mail ?: 'N/A'}" style="color: black"></td>
+                 
+                        <td>
+                            <button type="button" class="detail" th:data-id="${p.id}">Ver detalles</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Paginación -->
+        <div class="pagination" th:if="${totalPages > 1}">
+            <a th:href="@{/players/filter(genero=${genero}, position=${position}, page=1)}" 
+               th:class="${currentPage == 1} ? 'disabled' : ''">&laquo; Primera</a>
+            
+            <a th:href="@{/players/filter(genero=${genero}, position=${position}, page=${currentPage - 1})}" 
+               th:class="${currentPage == 1} ? 'disabled' : ''">&lt; Anterior</a>
+            
+            <span th:each="i : ${#numbers.sequence(1, totalPages)}">
+                <a th:href="@{/players/filter(genero=${genero}, position=${position}, page=${i})}" 
+                   th:class="${currentPage == i} ? 'active' : ''" 
+                   th:text="${i}"></a>
+            </span>
+            
+            <a th:href="@{/players/filter(genero=${genero}, position=${position}, page=${currentPage + 1})}" 
+               th:class="${currentPage == totalPages} ? 'disabled' : ''">Siguiente &gt;</a>
+            
+            <a th:href="@{/players/filter(genero=${genero}, position=${position}, page=${totalPages})}" 
+               th:class="${currentPage == totalPages} ? 'disabled' : ''">Última &raquo;</a>
+        </div>
+        
+        <!-- Contenedor para detalles del jugador -->
+        <div id="contenedor-detalles"></div>
+        
+        <!-- Botones de acción -->
+        <div class="action-buttons">
+            <button type="button" class="btn-secondary player-dashboard-home">Volver al inicio</button>
+        </div>
+        
+        <div>
+            <script th:if="${mensaje != null}">
+                Swal.fire(
+                    " [[${tipo}]]",
+                    " [[${mensaje}]]",
+                    "  [[${tipo}]] ");
+            </script>
+        </div>
+    </div>
+</body>
+</html>

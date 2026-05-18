@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Usuarios</title>
+    <link rel="stylesheet" th:href="@{/Style.css}">
+</head>
+
+<body>
+<div class="user-wrapper" th:fragment="contenido">
+    <h1>Lista de Usuarios</h1>
+
+    <!-- Formulario de Filtros -->
+    <form id="form-filtros" class="filters">
+        <select name="roleFilter">
+            <option value="">Todos los Roles</option>
+            <option value="A">Administrador</option>
+            <option value="S">Supervisor</option>
+            <option value="U">Usuario</option>
+        </select>
+
+        <select name="genderFilter">
+            <option value="">Todos los Géneros</option>
+            <option value="M">Masculino</option>
+            <option value="F">Femenino</option>
+            <option value="O">Otro</option>
+        </select>
+
+        <button type="submit">Aplicar Filtros</button>
+    </form>
+
+    <!-- Botón Refrescar -->
+    <div style="text-align: center; margin-bottom: 20px;">
+        <a href="#" class="refresh-button">Refrescar</a>
+    </div>
+
+    <!-- Tabla de usuarios -->
+    <table>
+        <thead>
+        <tr>
+            <th>ID de Usuario</th>
+            <th>Cédula</th>
+            <th>Nombre</th>
+            <th>Rol</th>
+            <th>Género</th>
+            <th>Acciones</th>
+        </tr>
+        </thead>
+        <tbody id="tbodyUsuarios">
+        <tr th:each="user : ${users}">
+            <td th:text="${user.nameUser}"></td>
+            <td th:text="${user.idCard}"></td>
+            <td th:text="${user.name}"></td>
+            <td>
+                <span th:switch="${user.role}">
+                    <span th:case="'A'">Administrador</span>
+                    <span th:case="'S'">Supervisor</span>
+                    <span th:case="'U'">Usuario</span>
+                    <span th:case="*">Desconocido</span>
+                </span>
+            </td>
+            <td>
+                <span th:switch="${user.gender}">
+                    <span th:case="'M'">Masculino</span>
+                    <span th:case="'F'">Femenino</span>
+                    <span th:case="*">Otro</span>
+                </span>
+            </td>
+            <td class="action-buttons">
+                <button type="button" class="btn-details" th:attr="data-user=${user.nameUser}">Detalles</button>
+                <a th:href="@{/users/edit(nameUser=${user.nameUser})}" class="btn btn-edit">Editar</a>
+                <button type="button" class="btn-delete" th:attr="data-user=${user.nameUser}">Eliminar</button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- Contenedor para mostrar el fragmento de detalles dinámicamente -->
+    <div class="contenedor-detalles">
+        <div id="detalle-usuario">
+            <!-- Detalles del usuario se cargan aquí -->
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
+
+

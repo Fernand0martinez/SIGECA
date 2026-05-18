@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${modo == 'editar' ? 'Editar Jugador | SIGECA' : 'Fichaje de Jugador | SIGECA'}">Formulario de Usuario</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/login-sports.css}">
+</head>
+<body class="login-page">
+    <main class="login-shell registration-container">
+        <section class="login-panel">
+            <div class="login-badge">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                FICHAJE OFICIAL
+            </div>
+            <h1 th:text="${modo == 'editar' ? 'Actualizar Ficha' : 'Nuevo Registro'}">Registro de Usuario</h1>
+            <p class="login-subtitle">Completa los datos para formar parte del equipo SIGECA.</p>
+
+            <form class="login-form" th:action="@{/login/register}" method="POST">
+                <input type="hidden" id="userId" name="userId" th:if="${usuario != null}" th:value="${usuario.idCard}">
+
+                <div class="grid-form">
+                    <!-- Datos de Cuenta -->
+                    <div class="form-group">
+                        <label for="nameUser">Nombre de Usuario</label>
+                        <input type="text" id="nameUser" name="nameUser" maxlength="20" placeholder="Ej: goleador99" required th:value="${usuario.nameUser != null ? usuario.nameUser : ''}">
+                        <span class="field-info">Letras, números y guiones (máx 20).</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Contraseña</label>
+                        <div class="input-wrapper">
+                            <input type="password" id="password" name="password" maxlength="16" placeholder="••••••••" th:required="${modo != 'editar'}" th:value="${usuario.password != null ? usuario.password : ''}">
+                            <button type="button" class="password-toggle" id="togglePass" data-tooltip="Ver/Ocultar">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            </button>
+                        </div>
+                        <span class="field-info" th:text="${modo == 'editar' ? 'Déjala vacía para conservar la actual.' : 'Usa una clave segura de al menos 8 caracteres.'}">Usa una clave segura.</span>
+                    </div>
+
+                    <!-- Datos Personales -->
+                    <div class="form-group">
+                        <label for="idCard">Cédula de Identidad</label>
+                        <input type="text" id="idCard" name="idCard" maxlength="12" placeholder="Ej: 112340567" required th:value="${usuario.idCard != null ? usuario.idCard : ''}" th:readonly="${modo == 'editar'}">
+                        <span class="field-info">Entre 6 y 12 dígitos numéricos.</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="name">Nombre</label>
+                        <input type="text" id="name" name="name" maxlength="40" placeholder="Tu nombre real" required th:value="${usuario.name != null ? usuario.name : ''}">
+                        <span class="field-info">Solo letras y espacios.</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lastName">Apellidos</label>
+                        <input type="text" id="lastName" name="lastName" maxlength="40" placeholder="Tus apellidos" required th:value="${usuario.lastName != null ? usuario.lastName : ''}">
+                        <span class="field-info">Como aparecen en tu cédula.</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mail">Correo Electrónico</label>
+                        <input type="email" id="mail" name="mail" maxlength="45" placeholder="ejemplo@correo.com" required th:value="${usuario.mail != null ? usuario.mail : ''}">
+                        <span class="field-info">Para enviarte tus comprobantes.</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Teléfono</label>
+                        <input type="text" id="phone" name="phone" maxlength="15" placeholder="Ej: 88884444" required th:value="${usuario.phone != null ? usuario.phone : ''}">
+                        <span class="field-info">8 a 15 dígitos numéricos.</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="age">Edad</label>
+                        <input type="number" id="age" name="age" min="1" max="120" placeholder="Ej: 25" required th:value="${usuario.age != null ? usuario.age : ''}">
+                        <span class="field-info">Para categorías deportivas.</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gender">Género</label>
+                        <select id="gender" name="gender" required>
+                            <option value="M" th:selected="${usuario.gender == 'M'}">Masculino</option>
+                            <option value="F" th:selected="${usuario.gender == 'F'}">Femenino</option>
+                            <option value="O" th:selected="${usuario.gender == 'O'}">Otro</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="role">Rol en el Sistema</label>
+                        <select id="role" name="role" required>
+                            <option value="U" th:selected="${usuario.role == 'U'}">Usuario / Jugador</option>
+                            <option value="S" th:selected="${usuario.role == 'S'}">Supervisor</option>
+                            <option value="A" th:selected="${usuario.role == 'A'}">Administrador</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div th:if="${param.error}" class="error-message">
+                    <strong>¡Ocurrió un error!</strong>
+                    <span th:switch="${param.error}">
+                        <span th:case="'CedulaRepetida'">Esta cédula ya está registrada.</span>
+                        <span th:case="'UsuarioRepetido'">El nombre de usuario ya existe.</span>
+                        <span th:case="'CorreoRepetido'">El correo electrónico ya está registrado.</span>
+                        <span th:case="'EmailInvalido'">El formato del correo electrónico no es válido.</span>
+                        <span th:case="'PasswordRequerido'">Debes ingresar una contraseña para registrar el usuario.</span>
+                        <span th:case="'TelefonoInvalido'">El número de teléfono debe ser de Costa Rica (8 dígitos).</span>
+                        <span th:case="'ErrorAlEnviarCorreo'">No se pudo enviar el correo de verificación. Revisa la configuración SMTP.</span>
+                        <span th:case="'ErrorAlGuardar'">Error técnico al guardar ficha.</span>
+                        <span th:case="*">Revisa los datos ingresados.</span>
+                    </span>
+                </div>
+
+                <button type="submit" class="btn-submit" th:text="${modo == 'editar' ? 'ACTUALIZAR FICHA' : 'COMPLETAR REGISTRO'}" data-tooltip="¡Confirma tus datos para jugar!">
+                    REGISTRARSE
+                </button>
+            </form>
+
+            <div class="footer-links">
+                <a th:href="@{/login/home}" class="register-link">← Volver al inicio</a>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        document.getElementById('togglePass').addEventListener('click', function() {
+            const passInput = document.getElementById('password');
+            const type = passInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passInput.setAttribute('type', type);
+        });
+    </script>
+</body>
+</html>

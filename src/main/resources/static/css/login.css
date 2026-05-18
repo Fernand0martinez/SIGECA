@@ -1,0 +1,117 @@
+.login-page {
+    margin: 0;
+    min-height: 100vh;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #0f172a, #1d4ed8);
+    display: grid;
+    place-items: center;
+    color: #0f172a;
+}
+
+.login-shell {
+    width: 100%;
+    max-width: 420px;
+    padding: 24px;
+}
+
+.login-panel {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 30px 28px;
+    box-shadow: 0 14px 35px rgba(2, 6, 23, 0.25);
+    border: 1px solid #dbe3f1;
+}
+
+.login-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: #dbeafe;
+    color: #1d4ed8;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+}
+
+.login-panel h1 {
+    margin: 14px 0 8px;
+    color: #0f172a;
+    font-size: 28px;
+}
+
+.login-subtitle {
+    margin: 0 0 20px;
+    color: #475569;
+    font-size: 14px;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.login-form label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+}
+
+.login-form input {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.login-form input:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+.login-form button {
+    margin-top: 4px;
+    border: none;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.2s;
+}
+
+.login-form button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(29, 78, 216, 0.25);
+}
+
+.error-message {
+    margin: 4px 0 8px;
+    font-size: 13px;
+    color: #b91c1c;
+    background: #fee2e2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 9px 10px;
+}
+
+.register-link {
+    margin-top: 16px;
+    display: inline-block;
+    color: #1d4ed8;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.register-link:hover {
+    text-decoration: underline;
+}

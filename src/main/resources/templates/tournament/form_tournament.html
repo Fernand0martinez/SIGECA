@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Formulario de Torneo | SIGECA</title>
+        <link rel="stylesheet" th:href="@{/css/tournament.css}">
+        <link rel="stylesheet" th:href="@{/css/back-button.css}">
+    </head>
+    <body>
+        <a class="back-top-btn" href="#" onclick="return window.dashboardBack ? window.dashboardBack('torneos', 'torneo') : false;">← Volver</a>
+        <div class="tournament-container">
+            <div class="form-container" th:fragment="contenido">
+                <h2>Crear Nuevo Torneo</h2>
+
+                <!-- Mensajes de alerta -->
+                <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
+                <div th:if="${success}" class="alert alert-success" role="alert" th:text="${success}"></div>
+
+                <form id="tournamentForm" th:action="@{/tournaments/admin/save}" method="POST" class="needs-validation tournament-form" novalidate>
+                    <div class="mb-3">
+                        <label for="name" class="form-label required-field">Nombre del Torneo</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                        <div class="invalid-feedback">El nombre del torneo es obligatorio.</div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="startDate" class="form-label required-field">Fecha de Inicio</label>
+                            <input type="date" class="form-control" id="startDate" name="startDate" required>
+                            <div class="invalid-feedback">La fecha de inicio es obligatoria.</div>
+                            <div id="startDateError" class="error-message">La fecha de inicio no puede ser anterior a la fecha actual.</div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="endDate" class="form-label required-field">Fecha de Finalización</label>
+                            <input type="date" class="form-control" id="endDate" name="endDate" required>
+                            <div class="invalid-feedback">La fecha de finalización es obligatoria.</div>
+                            <div id="endDateError" class="error-message">La fecha de finalización no puede ser anterior a la fecha de inicio.</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="sponsorId" class="form-label">Patrocinador (Opcional)</label>
+                        <select class="form-select" id="sponsorId" name="sponsorId">
+                            <option value="">-- Seleccione un patrocinador --</option>
+                            <option th:each="sponsor : ${sponsorships}" 
+                                    th:value="${sponsor.id}" 
+                                    th:text="${sponsor.company + ' (' + sponsor.sponsorshipType + ')'}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label required-field">Árbitros (Seleccione al menos uno)</label>
+                        <div class="form-check" th:each="referee : ${refeeres}">
+                            <input class="form-check-input referee-checkbox" type="checkbox" 
+                                   th:value="${referee.id}" th:id="${'referee-' + referee.id}"
+                                   name="refereeIds">
+                            <label class="form-check-label" th:for="${'referee-' + referee.id}" 
+                                   th:text="${referee.getName() + ' ' + referee.getLastName() + ' (Experiencia: ' + referee.experience + ' años)'}">
+                            </label>
+                        </div>
+                        <div id="refereeError" class="error-message">Debe seleccionar al menos un árbitro.</div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="/tournaments/admin" class="btn-inicio back-tournament-list">Volver</a>
+                        <button type="submit" class="btn btn-primary">Guardar Torneo</button>
+                    </div>
+                </form>
+                
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const form = document.getElementById('tournamentForm');
+                const startDateInput = document.getElementById('startDate');
+                const endDateInput = document.getElementById('endDate');
+                const startDateError = document.getElementById('startDateError');
+                const endDateError = document.getElementById('endDateError');
+                const refereeError = document.getElementById('refereeError');
+
+                // Ocultar mensajes de error al inicio
+                startDateError.style.display = 'none';
+                endDateError.style.display = 'none';
+                refereeError.style.display = 'none';
+
+                // Establecer la fecha mínima para la fecha de inicio (hoy)
+                const today = new Date();
+                const formattedDate = today.toISOString().split('T')[0];
+                startDateInput.setAttribute('min', formattedDate);
+
+                // Validar fechas cuando cambien
+                startDateInput.addEventListener('change', validateDates);
+                endDateInput.addEventListener('change', validateDates);
+
+                function validateDates() {
+                    const startDate = new Date(startDateInput.value);
+                    const endDate = new Date(endDateInput.value);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+
+                    // Validar que la fecha de inicio no sea anterior a hoy
+                    if (startDate < today) {
+                        startDateError.style.display = 'block';
+                        startDateInput.classList.add('is-invalid');
+                    } else {
+                        startDateError.style.display = 'none';
+                        startDateInput.classList.remove('is-invalid');
+                    }
+
+                    // Validar que la fecha de fin no sea anterior a la fecha de inicio
+                    if (endDate < startDate && endDateInput.value !== '') {
+                        endDateError.style.display = 'block';
+                        endDateInput.classList.add('is-invalid');
+                    } else {
+                        endDateError.style.display = 'none';
+                        endDateInput.classList.remove('is-invalid');
+                    }
+
+                    // Establecer la fecha mínima para la fecha de fin
+                    if (startDateInput.value) {
+                        endDateInput.setAttribute('min', startDateInput.value);
+                    }
+                }
+
+                // Validar el formulario antes de enviar
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+
+                    // Validar fechas
+                    validateDates();
+
+                    // Validar que se haya seleccionado al menos un árbitro
+                    const refereesSelected = document.querySelectorAll('.referee-checkbox:checked');
+                    if (refereesSelected.length === 0) {
+                        refereeError.style.display = 'block';
+                        event.preventDefault();
+                    } else {
+                        refereeError.style.display = 'none';
+                    }
+
+                    // Si hay errores visibles, prevenir el envío
+                    if (startDateError.style.display === 'block' ||
+                            endDateError.style.display === 'block' ||
+                            refereeError.style.display === 'block') {
+                        event.preventDefault();
+                    }
+
+                    form.classList.add('was-validated');
+                });
+            });
+        </script>
+    </body>
+</html>

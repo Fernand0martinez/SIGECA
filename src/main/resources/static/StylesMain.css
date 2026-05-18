@@ -1,0 +1,326 @@
+body {
+    margin: 0;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+.container {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 270px;
+    background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+    color: #e2e8f0;
+    padding: 22px 16px;
+    box-sizing: border-box;
+    border-right: 1px solid #334155;
+}
+
+.sidebar h3 {
+    text-align: center;
+    margin: 4px 0 18px;
+    font-size: 20px;
+    color: #f8fafc;
+}
+
+.sidebar ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 10px;
+}
+
+.sidebar button {
+    width: 100%;
+    text-align: left;
+    padding: 11px 12px;
+    background: #334155;
+    border: 1px solid #475569;
+    color: #f1f5f9;
+    cursor: pointer;
+    border-radius: 9px;
+    font-weight: 600;
+    transition: background 0.2s, border-color 0.2s, transform 0.2s;
+}
+
+.sidebar button:hover {
+    background: #3b82f6;
+    border-color: #60a5fa;
+    transform: translateX(2px);
+}
+
+.sidebar button.active {
+    background: #2563eb;
+    border-color: #93c5fd;
+}
+
+.main-content {
+    flex-grow: 1;
+    margin: 16px;
+    background: #ffffff;
+    border: 1px solid #dbe3f1;
+    border-radius: 14px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+    padding: 26px;
+    overflow-y: auto;
+}
+
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.topbar p {
+    margin: 0;
+    color: #475569;
+}
+
+.logout-link {
+    text-decoration: none;
+    background: #ef4444;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-weight: 700;
+}
+
+.logout-link:hover {
+    background: #dc2626;
+}
+
+/* Estilos para detalle de usuario */
+.detalle-usuario {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 30px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.detalle-usuario h2 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 25px;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+/* Tabla de detalles */
+.tabla-detalle-usuario {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+    font-size: 14px;
+}
+
+.tabla-detalle-usuario thead {
+    background-color: #34495e;
+    color: white;
+}
+
+.tabla-detalle-usuario th,
+.tabla-detalle-usuario td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.tabla-detalle-usuario tr:hover {
+    background-color: #f2f2f2;
+}
+
+.negrita {
+    font-weight: 600;
+    color: #34495e;
+}
+
+/* Botones de acción */
+.acciones-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.btn-volver,
+.btn-cerrar {
+    flex: 1;
+    padding: 12px;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-volver {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+}
+
+.btn-volver:hover {
+    background: linear-gradient(135deg, #2980b9, #3498db);
+    box-shadow: 0 4px 12px rgba(41, 128, 185, 0.3);
+}
+
+.btn-cerrar {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+
+.btn-cerrar:hover {
+    background: linear-gradient(135deg, #c0392b, #e74c3c);
+    box-shadow: 0 4px 12px rgba(192, 57, 43, 0.3);
+}
+
+.error-message {
+    color: #e74c3c;
+    padding: 15px;
+    background: #fff0f0;
+    border-radius: 5px;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.formulario-usuario-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 60px);
+    background: linear-gradient(to right, #f5f7fa, #c3cfe2);
+    padding: 50px 20px;
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+.formulario-usuario {
+    background-color: white;
+    padding: 40px 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    width: 100%;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.formulario-usuario h2 {
+    text-align: center;
+    margin-bottom: 10px;
+    color: #2c3e50;
+    font-size: 26px;
+    font-weight: bold;
+}
+
+.linea-decorativa {
+    width: 60px;
+    height: 4px;
+    background-color: #27ae60;
+    margin: 10px auto 30px;
+    border-radius: 2px;
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+.campo-formulario {
+    margin-bottom: 25px;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    position: relative;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.formulario-usuario label {
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #34495e;
+}
+
+.formulario-usuario input,
+.formulario-usuario select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.3s;
+}
+
+.formulario-usuario input:focus,
+.formulario-usuario select:focus {
+    border-color: #3498db;
+    outline: none;
+}
+
+.formulario-usuario button {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.formulario-usuario button:hover {
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+}
+
+/* Mensajes de éxito y error */
+.mensaje-exito,
+.mensaje-error {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 14px;
+    text-align: center;
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+.mensaje-exito {
+    background-color: #e8f8f5;
+    color: #2ecc71;
+    border: 1px solid #2ecc71;
+    box-shadow: 0 4px 12px rgba(46, 204, 113, 0.1);
+}
+
+.mensaje-error {
+    background-color: #fceaea;
+    color: #e74c3c;
+    border: 1px solid #e74c3c;
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.1);
+}
+@media (max-width: 900px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        border-right: 0;
+        border-bottom: 1px solid #334155;
+    }
+
+    .main-content {
+        margin: 12px;
+    }
+}
+

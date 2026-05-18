@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Productos Disponibles</title>
+        <link rel="stylesheet" th:href="@{/css/products.css}">
+    </head>
+    <body>
+        <div class="product-wrapper" th:fragment="contenido">
+            <h1>Productos Disponibles</h1>
+
+            <form id="form-filtros-productos" class="filters">
+                <select name="courtNameFilter">
+                    <option value="">Todas las canchas</option>
+                    <option th:each="cancha : ${canchas}" 
+                            th:value="${cancha.nameCourt}" 
+                            th:text="${cancha.nameCourt}">Cancha</option>
+                </select>
+
+                <select name="categoryFilter">
+                    <option value="">Todas las categorías</option>
+                    <option value="Pelotas">Pelotas</option>
+                    <option value="Botellas">Botellas</option>
+                    <option value="Ropa">Ropa</option>
+                    <option value="Calzado">Calzado</option>
+                    <option value="Suplementos">Suplementos</option>
+                </select>
+
+                <button type="submit">Aplicar Filtros</button>
+            </form>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Categoría</th>
+                        <th>Precio</th>
+                        <th>Stock</th>
+                        <th>Cancha</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                
+                <th:block th:replace="~{product/fragments/list_client :: tbodyProductos}"></th:block>
+            </table>
+
+            <div class="contenedor-detalles">
+                <div id="detalle-producto"></div>
+            </div>
+        </div>
+    </body>
+</html>

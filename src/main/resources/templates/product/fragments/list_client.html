@@ -1,0 +1,14 @@
+<!-- product/fragments/list_client.html -->
+<th:block th:fragment="tbodyProductos">
+    <tr th:each="product : ${products}">
+        <td th:text="${product.productName}"></td>
+        <td th:text="${product.description}"></td>
+        <td th:text="${product.category}"></td>
+        <td th:text="${product.price} + ' ₡'"></td>
+        <td th:text="${product.stock}"></td>
+        <td th:text="${product.court.nameCourt}"></td>
+        <td>
+            <button type="button" class="btn-details-product" th:attr="data-id=${product.idProduct}">Ver Detalles</button>
+        </td>
+    </tr>
+</th:block>

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" th:href="@{/css/back-button.css}">
+</head>
+<body>
+    <div th:fragment="detalleProducto">
+        <a class="back-top-btn" href="#" onclick="if (typeof cerrarDetalleProducto === 'function') { cerrarDetalleProducto(); return false; } return window.dashboardBack ? window.dashboardBack('producto', 'productos') : false;">Volver</a>
+        <div class="detalle-producto-card">
+            <h2 th:text="${product.productName}">Nombre del producto</h2>
+
+            <p><strong>Descripcion:</strong> <span th:text="${product.description}">Descripcion</span></p>
+            <p><strong>Categoria:</strong> <span th:text="${product.category}">Categoria</span></p>
+            <p><strong>Precio:</strong> <span th:text="${product.price} + ' CRC'">Precio</span></p>
+            <p><strong>Stock:</strong> <span th:text="${product.stock}">Stock</span></p>
+            <p><strong>Cancha:</strong> <span th:text="${product.court.nameCourt}">Cancha</span></p>
+
+            <div style="text-align: center; margin-top: 15px;">
+                <button type="button" class="btn-cerrar-detalles">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

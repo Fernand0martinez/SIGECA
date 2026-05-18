@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Realizar Pago</title>
+    
+     <link rel="stylesheet" th:href="@{/StylesPayment.css}">
+     <link rel="stylesheet" th:href="@{/css/back-button.css}">
+</head>
+<body>
+    <a class="back-top-btn" href="#" onclick="return window.dashboardBack ? window.dashboardBack('reservaciones') : false;">← Volver</a>
+    <div class="page-container" th:fragment="contenido">
+        <div class="page-header">
+            <h1 class="page-title">Realizar Pago</h1>
+            <p class="page-subtitle">Complete los detalles para finalizar su reservación</p>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                Detalles de la Reservación
+            </div>
+            <div class="card-body">
+                <div class="details-grid">
+                    <div>
+                        <div class="detail-group">
+                            <span class="detail-label">ID Reserva</span>
+                            <div class="detail-value" th:text="${reservation.id}">12345</div>
+                        </div>
+                        <div class="detail-group">
+                            <span class="detail-label">Usuario</span>
+                            <div class="detail-value" th:text="${reservation.user.nameUser}">Nombre Usuario</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="detail-group">
+                            <span class="detail-label">Cancha</span>
+                            <div class="detail-value" th:text="${reservation.court.nameCourt}">Cancha A</div>
+                        </div>
+                        <div class="detail-group">
+                            <span class="detail-label">Fecha</span>
+                            <div class="detail-value" th:text="${reservation.date}">01/01/2023</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="detail-group">
+                            <span class="detail-label">Hora inicio</span>
+                            <div class="detail-value" th:text="${reservation.startHour}">10:00</div>
+                        </div>
+                        <div class="detail-group">
+                            <span class="detail-label">Hora fin</span>
+                            <div class="detail-value" th:text="${reservation.endHour}">11:00</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="price-summary">
+                    <div class="price-label">Total a pagar:</div>
+                    <div class="price-value">₡<span th:text="${reservation.totalPrice}">10,000</span></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                Información de Pago
+            </div>
+            <div class="form-container">
+                <form th:action="@{/payments/user/process}" method="POST" class="payment-process-form">
+                    <input type="hidden" name="reservationId" th:value="${reservation.id}" />
+                    <input type="hidden" name="amount" th:value="${reservation.totalPrice}" />
+                    
+                    <div class="form-group">
+                        <label for="method" class="form-label">Método de pago:</label>
+                        <select name="method" id="method" class="form-control" required>
+                            <option value="">Seleccione un método</option>
+                            <option th:each="pm : ${paymentMethods}"
+                                    th:value="${pm}"
+                                    th:text="${pm}">
+                                Método de pago
+                            </option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="description" class="form-label">Descripción del pago:</label>
+                        <textarea id="description" name="description" class="form-control" 
+                                  placeholder="Ej: Pago realizado por Jorge con tarjeta de crédito."></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary payment-confirm-btn">Confirmar pago</button>
+                </form>
+                
+                <div class="security-note">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
+                    </svg>
+                    Sus datos de pago están protegidos y son procesados de forma segura
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

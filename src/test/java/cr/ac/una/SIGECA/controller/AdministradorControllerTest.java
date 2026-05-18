@@ -1,0 +1,34 @@
+package cr.ac.una.SIGECA.controller;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+
+class AdministradorControllerTest {
+
+    private MockMvc mockMvc;
+
+    @BeforeEach
+    void setUp() {
+        mockMvc = MockMvcBuilders.standaloneSetup(new AdministradorController()).build();
+    }
+
+    @Test
+    void profileReturnsFragmentForAjaxRequests() throws Exception {
+        mockMvc.perform(get("/admin/profile").header("X-Requested-With", "XMLHttpRequest"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("perfil :: contenido"));
+    }
+
+    @Test
+    void profileReturnsFullViewForRegularRequests() throws Exception {
+        mockMvc.perform(get("/admin/profile"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("perfil"));
+    }
+}

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIGECA | Admin Dashboard</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" th:href="@{/css/dashboard-modern.css}">
+    <link rel="stylesheet" th:href="@{/css/app-theme.css}">
+    
+    <!-- Scripts -->
+    <script type="text/javascript" th:src="@{/administrador.js}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <div class="container" data-default-view="cancha">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <h3><span>SIGECA</span></h3>
+            <ul>
+                <li><button class="nav-button" data-view="cancha"><span>Gestionar Canchas</span></button></li>
+                <li><button class="nav-button" data-view="torneo"><span>Gestionar Torneos</span></button></li>
+                <li><button class="nav-button" data-view="reservaciones"><span>Ver Reservaciones</span></button></li>
+                <li><button class="nav-button" data-view="productos"><span>Ver Productos</span></button></li>
+                <li><button class="nav-button" data-view="arbitros"><span>Gestionar Árbitros</span></button></li>
+                <li><button class="nav-button" data-view="jugador"><span>Gestionar Jugadores</span></button></li>
+                <li><button class="nav-button" data-view="patrocinio"><span>Ver Patrocinios</span></button></li>
+                <li><button class="nav-button" data-view="perfil"><span>Mi Perfil</span></button></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="main-content-wrapper">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <p>Panel de Administración Central</p>
+                </div>
+                <div class="topbar-right">
+                    <a class="logout-link" th:href="@{/login/logout}">
+                        <span>Cerrar Sesión</span>
+                    </a>
+                </div>
+            </header>
+
+            <main class="main-content" id="content">
+                <div class="card fadeIn">
+                    <h2>Bienvenido, Administrador</h2>
+                    <p>Utiliza el menú lateral para gestionar los diferentes módulos del sistema.</p>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Alert Notifications -->
+    <script th:if="${mensaje != null}">
+        Swal.fire({
+            title: "[[${tipo}]]",
+            text: "[[${mensaje}]]",
+            icon: "[[${tipo == 'Error' ? 'error' : 'success'}]]",
+            confirmButtonColor: '#6366f1'
+        });
+    </script>
+</body>
+</html>

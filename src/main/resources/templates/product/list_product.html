@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Lista de Productos</title>
+        <link rel="stylesheet" th:href="@{/css/products.css}">
+        
+    </head>
+
+    <body>
+        <div class="product-wrapper" th:fragment="contenido">
+            <h1>Lista de Productos</h1>
+
+            <!-- Formulario de Filtros -->
+            <form id="form-filtros-productos" class="filters">
+                <select name="courtNameFilter">
+                    <option value="">Todas las canchas</option>
+                    <option th:each="cancha : ${canchas}" 
+                            th:value="${cancha.nameCourt}" 
+                            th:text="${cancha.nameCourt}">
+                    </option>
+                </select>
+
+                <select name="categoryFilter">
+                    <option value="">Todas las categorías</option>
+                    <option value="Pelotas">Pelotas</option>
+                    <option value="Botellas">Botellas</option>
+                    <option value="Ropa">Ropa</option>
+                    <option value="Calzado">Calzado</option>
+                    <option value="Suplementos">Suplementos</option>
+                </select>
+
+                <button type="submit">Aplicar Filtros</button>
+            </form>
+
+            <div style="text-align: center; margin-bottom: 20px;">
+                <a href="#" class="refresh-button-product">Refrescar</a>
+            </div>
+
+            
+            <button type="button" id="btn-nuevo-producto" class="btn-agregar">Agregar nuevo producto</button>
+
+
+            <!-- Tabla de productos -->
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Categoría</th>
+                        <th>Precio</th>
+                        <th>Stock</th>
+                        <th>Cancha</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tbodyProductos">
+                    <tr th:each="product : ${products}">
+                        <td th:text="${product.productName}"></td>
+                        <td th:text="${product.description}"></td>
+                        <td th:text="${product.category}"></td>
+                        <td th:text="${product.price} + ' ₡'"></td>
+                        <td th:text="${product.stock}"></td>
+                        <td th:text="${product.court.nameCourt}"></td>
+                        <td class="action-buttons">
+                            <button type="button" class="btn-details-product" th:attr="data-id=${product.idProduct}">Detalles</button>
+                            <a th:href="@{/products/admin/edit(idProduct=${product.idProduct})}" class="btn btn-edit">Editar</a>
+                            <a th:href="@{/products/admin/delete(idProduct=${product.idProduct})}" class="btn-delete-product">Eliminar</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+
+            <!-- Contenedor para detalles -->
+            <div class="contenedor-detalles">
+                <div id="detalle-producto">
+                    <!-- Detalles dinámicos aquí -->
+                </div>
+            </div>
+
+            <!-- Contenedor para formulario de producto -->
+            <div id="contenedor-formulario-producto"></div>
+        </div>
+    </body>
+</html>
+
+
