@@ -5,6 +5,7 @@ import cr.ac.una.SIGECA.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -12,12 +13,14 @@ import static org.mockito.Mockito.*;
 class LogicUserTest {
 
     private UserService userService;
+    private PasswordEncoder passwordEncoder;
     private LogicUser logicUser;
 
     @BeforeEach
     void setUp() {
         userService = mock(UserService.class);
-        logicUser = new LogicUser(userService);
+        passwordEncoder = mock(PasswordEncoder.class);
+        logicUser = new LogicUser(userService, passwordEncoder);
     }
 
     @Test

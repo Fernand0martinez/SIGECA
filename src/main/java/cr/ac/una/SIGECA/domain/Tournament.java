@@ -35,6 +35,10 @@ public class Tournament {
     private LocalDate startDate;
     private LocalDate endDate;
     private boolean status;
+    
+    private String tournamentState = "DRAFT"; // DRAFT, ACTIVE, FINISHED
+    private String matchDay;                  // SABADO, DOMINGO, etc.
+    private String matchTime;                 // 14:00, 16:30, etc.
 
     // Relacion muchos a muchos con Referee
     @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
@@ -141,4 +145,27 @@ public class Tournament {
         this.teams = teams;
     }    
     
+    public String getTournamentState() {
+        return tournamentState;
+    }
+
+    public void setTournamentState(String tournamentState) {
+        this.tournamentState = tournamentState;
+    }
+
+    public String getMatchDay() {
+        return matchDay;
+    }
+
+    public void setMatchDay(String matchDay) {
+        this.matchDay = matchDay;
+    }
+
+    public String getMatchTime() {
+        return matchTime;
+    }
+
+    public void setMatchTime(String matchTime) {
+        this.matchTime = matchTime;
+    }
 }

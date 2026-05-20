@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Detalles del Torneo | SIGECA</title>
+        <link rel="stylesheet" th:href="@{/css/tournament.css}">
+        <link rel="stylesheet" th:href="@{/css/back-button.css}">
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    </head>
+    <body>
+        <a class="back-top-btn" href="#" onclick="return window.dashboardBack ? window.dashboardBack('torneos', 'torneo') : false;">← Volver</a>
+        
+        <div class="tournament-container" th:fragment="contenido">
+            
+            <!-- Alert Messages -->
+            <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
+            <div th:if="${success}" class="alert alert-success" role="alert" th:text="${success}"></div>
+
+            <!-- Header Card -->
+            <div class="tournament-header-card">
+                <div class="header-main-info">
+                    <span th:if="${tournament.tournamentState == 'DRAFT' or tournament.tournamentState == null}" class="badge-large badge-draft">Borrador</span>
+                    <span th:if="${tournament.tournamentState == 'ACTIVE'}" class="badge-large badge-active">Activo</span>
+                    <span th:if="${tournament.tournamentState == 'FINISHED'}" class="badge-large badge-finished">Finalizado</span>
+                    
+                    <h1 th:text="${tournament.name}">Nombre del Torneo</h1>
+                    <p class="tournament-meta">
+                        <span>📅 <strong>Inicio:</strong> <span th:text="${tournament.startDate}">01/01/2025</span></span>
+                        <span>🏁 <strong>Fin:</strong> <span th:text="${tournament.endDate}">10/01/2025</span></span>
+                        <span>⚽ <strong>Juego:</strong> Cada <span th:text="${#strings.toLowerCase(tournament.matchDay != null ? tournament.matchDay : 'SÁBADO')}">sábado</span> a las <span th:text="${tournament.matchTime != null ? tournament.matchTime : '15:00'}">15:00</span></span>
+                    </p>
+                </div>
+                
+                <!-- Action Button for Launching -->
+                <div class="header-actions" th:if="${tournament.tournamentState == 'DRAFT' or tournament.tournamentState == null}">
+                    <form th:action="@{/tournaments/admin/launch}" method="POST" class="tournament-launch-form">
+                        <input type="hidden" name="id" th:value="${tournament.id}">
+                        <button type="submit" class="btn-launch" th:disabled="${tournament.teams.size() < 2}">
+                            🚀 Lanzar Torneo
+                        </button>
+                    </form>
+                    <small class="launch-hint" th:if="${tournament.teams.size() < 2}">* Inscribe al menos 2 equipos para poder lanzar</small>
+                </div>
+            </div>
+
+            <!-- Details Layout Grid -->
+            <div class="details-layout-grid">
+                
+                <!-- Left Column: Tabs Control & Tables -->
+                <div class="main-details-area">
+                    
+                    <!-- Tabs Navigation -->
+                    <div class="tabs-nav">
+                        <button class="tab-btn active" onclick="switchTab(event, 'teams-tab')">👥 Equipos (<span th:text="${tournament.teams.size()}">0</span>)</button>
+                        <button class="tab-btn" onclick="switchTab(event, 'fixture-tab')">📅 Calendario Fixture</button>
+                    </div>
+
+                    <!-- TAB 1: TEAMS -->
+                    <div id="teams-tab" class="tab-content active">
+                        <!-- Add Team (Only in DRAFT) -->
+                        <div class="add-team-panel" th:if="${tournament.tournamentState == 'DRAFT' or tournament.tournamentState == null}">
+                            <h3>Inscribir Nuevo Equipo</h3>
+                            <form th:action="@{/tournaments/admin/addTeam}" method="POST" class="tournament-details-form add-team-row">
+                                <input type="hidden" name="tournamentId" th:value="${tournament.id}">
+                                <div class="select-wrapper">
+                                    <select name="teamId" required class="form-select">
+                                        <option value="">-- Selecciona un equipo --</option>
+                                        <option th:each="team : ${availableTeams}" th:value="${team.id}" th:text="${team.name}"></option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-add-team" th:disabled="${availableTeams.isEmpty()}">
+                                    ＋ Inscribir Equipo
+                                </button>
+                            </form>
+                            <p class="no-teams-alert" th:if="${availableTeams.isEmpty()}">⚠️ Todos los equipos disponibles en el sistema ya están inscritos.</p>
+                        </div>
+
+                        <!-- Registered Teams List -->
+                        <div class="teams-list-wrapper">
+                            <h3>Equipos Participantes</h3>
+                            <div th:if="${tournament.teams.isEmpty()}" class="empty-state-card">
+                                <p>No hay ningún equipo inscrito en este torneo todavía.</p>
+                            </div>
+                            <table class="teams-table" th:if="${!tournament.teams.isEmpty()}">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nombre del Equipo</th>
+                                        <th>Capitán</th>
+                                        <th>Plantilla (Jugadores)</th>
+                                        <th th:if="${tournament.tournamentState == 'DRAFT' or tournament.tournamentState == null}">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="team : ${tournament.teams}">
+                                        <td th:text="${team.id}">1</td>
+                                        <td class="team-name-cell">🛡️ <strong th:text="${team.name}">Nombre</strong></td>
+                                        <td th:text="${team.captain != null ? team.captain.getName() + ' ' + team.captain.getLastName() : 'Sin capitán'}">Capitán</td>
+                                        <td>
+                                            <span class="players-count-badge" th:text="${team.players.size() + ' jugadores'}">0 jugadores</span>
+                                        </td>
+                                        <td th:if="${tournament.tournamentState == 'DRAFT' or tournament.tournamentState == null}">
+                                            <form th:action="@{/tournaments/admin/removeTeam}" method="POST" class="remove-team-form" style="display:inline;">
+                                                <input type="hidden" name="tournamentId" th:value="${tournament.id}">
+                                                <input type="hidden" name="teamId" th:value="${team.id}">
+                                                <button type="submit" class="btn-remove-team remove-team-btn" title="Desinscribir equipo">
+                                                    ❌ Eliminar
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- TAB 2: FIXTURE -->
+                    <div id="fixture-tab" class="tab-content">
+                        <div th:if="${tournament.tournamentState == 'DRAFT' or tournament.tournamentState == null}" class="fixture-empty-state">
+                            <div class="empty-illustration">📅</div>
+                            <h2>Calendario no generado</h2>
+                            <p>El fixture se creará automáticamente cuando lances el campeonato. Podrás ver todos los enfrentamientos divididos por jornadas ordenadas cronológicamente.</p>
+                        </div>
+                        
+                        <div th:if="${tournament.tournamentState == 'ACTIVE' or tournament.tournamentState == 'FINISHED'}" class="fixture-active-area">
+                            <div class="rounds-navigation">
+                                <label for="roundSelect">Filtrar por Jornada: </label>
+                                <select id="roundSelect" class="form-select select-round" onchange="filterRound(this.value)">
+                                    <option value="all">-- Mostrar todas las jornadas --</option>
+                                    <option th:each="r : ${#numbers.sequence(1, (tournament.teams.size() % 2 == 0 ? tournament.teams.size() - 1 : tournament.teams.size()))}" 
+                                            th:value="${'jornada-' + r}" 
+                                            th:text="${'Jornada ' + r}"></option>
+                                </select>
+                            </div>
+
+                            <div class="fixture-cards-grid">
+                                <div th:each="match : ${matches}" th:class="${'match-card jornada-' + match.round}">
+                                    <div class="match-card-header">
+                                        <span class="match-round-badge" th:text="${'JORNADA ' + match.round}">JORNADA 1</span>
+                                        <span class="match-date-badge" th:text="${#temporals.format(match.matchDate, 'dd/MM/yyyy - hh:mm a')}">01/01/2025</span>
+                                    </div>
+                                    <div class="match-teams-display">
+                                        <div class="team-side home-side">
+                                            <span class="team-icon">🛡️</span>
+                                            <span class="team-name" th:text="${match.homeTeam.name}">Local</span>
+                                        </div>
+                                        <div class="match-score-vs">
+                                            <div th:if="${!match.played}" class="vs-label">VS</div>
+                                            <div th:if="${match.played}" class="score-display">
+                                                <span class="score-num" th:text="${match.homeGoals}">0</span>
+                                                <span class="score-dash">-</span>
+                                                <span class="score-num" th:text="${match.awayGoals}">0</span>
+                                            </div>
+                                        </div>
+                                        <div class="team-side away-side">
+                                            <span class="team-name" th:text="${match.awayTeam.name}">Visitante</span>
+                                            <span class="team-icon">🛡️</span>
+                                        </div>
+                                    </div>
+                                    <div class="match-card-footer">
+                                        <span class="match-referee">⚖️ Árbitro: <strong th:text="${match.referee != null ? match.referee.getName() + ' ' + match.referee.getLastName() : 'Sin asignar'}">Árbitro</strong></span>
+                                        <span th:if="${match.played}" class="match-status played">Jugado</span>
+                                        <span th:if="${!match.played}" class="match-status scheduled">Programado</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Right Column: Context/Info Sidebar -->
+                <div class="details-sidebar">
+                    <!-- Tournament Summary Card -->
+                    <div class="sidebar-widget">
+                        <h3>Organización y Soporte</h3>
+                        <ul class="sidebar-list">
+                            <li>
+                                <strong>Patrocinador:</strong>
+                                <span th:text="${tournament.sponsor != null ? tournament.sponsor.company + ' (' + tournament.sponsor.sponsorshipType + ')' : 'Sin patrocinador asignado'}">Patrocinador</span>
+                            </li>
+                            <li>
+                                <strong>Árbitros Asociados:</strong>
+                                <div class="referees-mini-list">
+                                    <span class="referee-pill" th:each="ref : ${tournament.referees}" th:text="${ref.getName() + ' ' + ref.getLastName()}"></span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Return Widget -->
+                    <div class="sidebar-widget return-widget">
+                        <a href="/tournaments/admin/list" class="btn btn-secondary back-tournament-list" style="display:block; text-align:center; margin:0;">
+                            ↩️ Volver al Listado
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- CSS Styles Section (Modern & Premium Design) -->
+            <style>
+                .tournament-header-card {
+                    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+                    color: white;
+                    padding: 30px;
+                    border-radius: 12px;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+                    margin-bottom: 25px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    flex-wrap: wrap;
+                    gap: 20px;
+                }
+                .header-main-info h1 {
+                    margin: 10px 0;
+                    font-size: 2.2rem;
+                    font-weight: 700;
+                    color: #fff;
+                    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+                    text-align: left;
+                }
+                .tournament-meta {
+                    display: flex;
+                    gap: 20px;
+                    margin: 0;
+                    font-size: 0.95rem;
+                    color: #bdc3c7;
+                    flex-wrap: wrap;
+                }
+                .tournament-meta span {
+                    background: rgba(255,255,255,0.08);
+                    padding: 6px 12px;
+                    border-radius: 20px;
+                }
+                .badge-large {
+                    padding: 6px 16px;
+                    border-radius: 30px;
+                    font-weight: bold;
+                    font-size: 0.85rem;
+                    letter-spacing: 0.5px;
+                    text-transform: uppercase;
+                    display: inline-block;
+                }
+                .badge-draft {
+                    background-color: #f1c40f;
+                    color: #2c3e50;
+                }
+                .badge-active {
+                    background-color: #2ecc71;
+                    color: white;
+                }
+                .badge-finished {
+                    background-color: #95a5a6;
+                    color: white;
+                }
+                .btn-launch {
+                    background-color: #2ecc71;
+                    color: white;
+                    font-size: 1.1rem;
+                    font-weight: bold;
+                    padding: 12px 25px;
+                    border: none;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                }
+                .btn-launch:hover:not(:disabled) {
+                    background-color: #27ae60;
+                    transform: translateY(-2px);
+                    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+                }
+                .btn-launch:disabled {
+                    background-color: #95a5a6;
+                    cursor: not-allowed;
+                    opacity: 0.6;
+                }
+                .launch-hint {
+                    display: block;
+                    margin-top: 5px;
+                    font-size: 0.8rem;
+                    color: #e74c3c;
+                    text-align: right;
+                }
+
+                /* Grid Layout */
+                .details-layout-grid {
+                    display: grid;
+                    grid-template-columns: 3fr 1fr;
+                    gap: 25px;
+                }
+                .main-details-area {
+                    background: white;
+                    border-radius: 10px;
+                    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+                    padding: 25px;
+                }
+                .details-sidebar {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 20px;
+                }
+                .sidebar-widget {
+                    background: white;
+                    border-radius: 10px;
+                    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+                    padding: 20px;
+                }
+                .sidebar-widget h3 {
+                    margin-top: 0;
+                    margin-bottom: 15px;
+                    border-bottom: 2px solid #ecf0f1;
+                    padding-bottom: 8px;
+                    color: #2c3e50;
+                    font-size: 1.1rem;
+                }
+                .sidebar-list {
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+                    font-size: 0.9rem;
+                    color: #555;
+                }
+                .sidebar-list li {
+                    margin-bottom: 12px;
+                    line-height: 1.4;
+                }
+                .referees-mini-list {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 6px;
+                    margin-top: 6px;
+                }
+                .referee-pill {
+                    background-color: #eaedf1;
+                    color: #475569;
+                    padding: 4px 10px;
+                    border-radius: 12px;
+                    font-size: 0.8rem;
+                    font-weight: 500;
+                }
+
+                /* Tab navigation styles */
+                .tabs-nav {
+                    display: flex;
+                    border-bottom: 2px solid #ecf0f1;
+                    margin-bottom: 25px;
+                    gap: 10px;
+                }
+                .tab-btn {
+                    background: none;
+                    border: none;
+                    padding: 12px 20px;
+                    font-size: 1rem;
+                    font-weight: 600;
+                    color: #7f8c8d;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                    border-bottom: 3px solid transparent;
+                    margin-bottom: -2px;
+                }
+                .tab-btn:hover {
+                    color: #2c3e50;
+                }
+                .tab-btn.active {
+                    color: #3498db;
+                    border-bottom: 3px solid #3498db;
+                }
+                .tab-content {
+                    display: none;
+                }
+                .tab-content.active {
+                    display: block;
+                }
+
+                /* Teams Tab elements */
+                .add-team-panel {
+                    background-color: #f8fafc;
+                    padding: 20px;
+                    border-radius: 8px;
+                    margin-bottom: 25px;
+                    border: 1px dashed #cbd5e1;
+                }
+                .add-team-panel h3 {
+                    margin-top: 0;
+                    font-size: 1.05rem;
+                    color: #334155;
+                    margin-bottom: 12px;
+                }
+                .add-team-row {
+                    display: flex;
+                    gap: 15px;
+                    align-items: center;
+                }
+                .select-wrapper {
+                    flex-grow: 1;
+                }
+                .btn-add-team {
+                    padding: 10px 20px;
+                    font-weight: bold;
+                    white-space: nowrap;
+                    margin: 0;
+                }
+                .no-teams-alert {
+                    color: #ef4444;
+                    font-size: 0.85rem;
+                    margin: 8px 0 0 0;
+                }
+                .teams-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-top: 15px;
+                }
+                .teams-table th {
+                    background-color: #f1f5f9;
+                    color: #475569;
+                    font-weight: 600;
+                    border-bottom: 2px solid #e2e8f0;
+                }
+                .teams-table td {
+                    border-bottom: 1px solid #f1f5f9;
+                }
+                .team-name-cell {
+                    color: #1e293b;
+                    font-size: 0.95rem;
+                }
+                .players-count-badge {
+                    background-color: #e0f2fe;
+                    color: #0369a1;
+                    padding: 2px 8px;
+                    border-radius: 12px;
+                    font-size: 0.8rem;
+                    font-weight: 500;
+                }
+                .btn-remove-team {
+                    background-color: #fee2e2;
+                    color: #b91c1c;
+                    border: 1px solid #fca5a5;
+                    padding: 4px 10px;
+                    font-size: 0.8rem;
+                    font-weight: 600;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                }
+                .btn-remove-team:hover {
+                    background-color: #fca5a5;
+                }
+
+                /* Fixture Tab elements */
+                .fixture-empty-state {
+                    text-align: center;
+                    padding: 50px 20px;
+                    color: #64748b;
+                }
+                .empty-illustration {
+                    font-size: 4rem;
+                    margin-bottom: 15px;
+                    animation: bounce 2s infinite;
+                }
+                .fixture-empty-state h2 {
+                    color: #334155;
+                    font-size: 1.3rem;
+                    margin-bottom: 10px;
+                }
+                .fixture-empty-state p {
+                    max-width: 450px;
+                    margin: 0 auto;
+                    font-size: 0.9rem;
+                    line-height: 1.5;
+                }
+                
+                .rounds-navigation {
+                    display: flex;
+                    justify-content: flex-end;
+                    align-items: center;
+                    margin-bottom: 20px;
+                    gap: 10px;
+                }
+                .select-round {
+                    width: 250px;
+                    margin: 0;
+                }
+                
+                .fixture-cards-grid {
+                    display: grid;
+                    grid-template-columns: 1fr;
+                    gap: 15px;
+                }
+                .match-card {
+                    background-color: #ffffff;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 8px;
+                    padding: 16px;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+                    transition: all 0.2s;
+                }
+                .match-card:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 8px rgba(0,0,0,0.06);
+                    border-color: #cbd5e1;
+                }
+                .match-card-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    border-bottom: 1px solid #f1f5f9;
+                    padding-bottom: 10px;
+                    margin-bottom: 12px;
+                }
+                .match-round-badge {
+                    font-size: 0.75rem;
+                    font-weight: bold;
+                    background-color: #34495e;
+                    color: white;
+                    padding: 3px 8px;
+                    border-radius: 4px;
+                }
+                .match-date-badge {
+                    font-size: 0.8rem;
+                    color: #64748b;
+                    font-weight: 500;
+                }
+                .match-teams-display {
+                    display: grid;
+                    grid-template-columns: 4fr 2fr 4fr;
+                    align-items: center;
+                    margin: 15px 0;
+                }
+                .team-side {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    font-size: 1.05rem;
+                    font-weight: 600;
+                    color: #1e293b;
+                }
+                .home-side {
+                    justify-content: flex-start;
+                }
+                .away-side {
+                    justify-content: flex-end;
+                }
+                .team-icon {
+                    font-size: 1.4rem;
+                }
+                .match-score-vs {
+                    text-align: center;
+                }
+                .vs-label {
+                    background-color: #f1f5f9;
+                    color: #64748b;
+                    padding: 3px 12px;
+                    border-radius: 12px;
+                    font-size: 0.8rem;
+                    font-weight: bold;
+                    display: inline-block;
+                }
+                .score-display {
+                    font-size: 1.3rem;
+                    font-weight: 800;
+                    color: #0f172a;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    gap: 5px;
+                }
+                .score-num {
+                    background: #f8fafc;
+                    padding: 2px 8px;
+                    border-radius: 4px;
+                    border: 1px solid #e2e8f0;
+                }
+                .score-dash {
+                    color: #64748b;
+                }
+                .match-card-footer {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    border-top: 1px solid #f1f5f9;
+                    padding-top: 10px;
+                    margin-top: 12px;
+                    font-size: 0.85rem;
+                }
+                .match-referee {
+                    color: #64748b;
+                }
+                .match-status {
+                    font-size: 0.75rem;
+                    font-weight: bold;
+                    padding: 2px 8px;
+                    border-radius: 10px;
+                }
+                .match-status.played {
+                    background-color: #dcfce7;
+                    color: #15803d;
+                }
+                .match-status.scheduled {
+                    background-color: #dbeafe;
+                    color: #1d4ed8;
+                }
+
+                /* Animation */
+                @keyframes bounce {
+                    0%, 100% { transform: translateY(0); }
+                    50% { transform: translateY(-10px); }
+                }
+
+                /* Responsiveness */
+                @media (max-width: 992px) {
+                    .details-layout-grid {
+                        grid-template-columns: 1fr;
+                    }
+                    .details-sidebar {
+                        order: -1; /* Sidebar goes top on mobile */
+                    }
+                }
+                @media (max-width: 600px) {
+                    .match-teams-display {
+                        grid-template-columns: 1fr;
+                        gap: 10px;
+                        text-align: center;
+                    }
+                    .home-side, .away-side {
+                        justify-content: center;
+                    }
+                    .match-score-vs {
+                        margin: 5px 0;
+                    }
+                }
+            </style>
+
+            <!-- Embedded JS for tab switching & filtering -->
+            <script>
+                function switchTab(evt, tabId) {
+                    const tabcontents = document.getElementsByClassName("tab-content");
+                    for (let i = 0; i < tabcontents.length; i++) {
+                        tabcontents[i].classList.remove("active");
+                    }
+
+                    const tablinks = document.getElementsByClassName("tab-btn");
+                    for (let i = 0; i < tablinks.length; i++) {
+                        tablinks[i].classList.remove("active");
+                    }
+
+                    document.getElementById(tabId).classList.add("active");
+                    evt.currentTarget.classList.add("active");
+                }
+
+                function filterRound(roundClass) {
+                    const cards = document.querySelectorAll(".match-card");
+                    if (roundClass === "all") {
+                        cards.forEach(card => card.style.display = "block");
+                    } else {
+                        cards.forEach(card => {
+                            if (card.classList.contains(roundClass)) {
+                                card.style.display = "block";
+                            } else {
+                                card.style.display = "none";
+                            }
+                        });
+                    }
+                }
+            </script>
+
+        </div>
+    </body>
+</html>

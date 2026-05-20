@@ -20,7 +20,13 @@ public class TournamentService implements CRUD<Tournament>{
     
     @Autowired
     private TournamentRepository repoTournament;
-    
+
+    @Autowired
+    private cr.ac.una.SIGECA.repository.TeamRepository repoTeam;
+
+    @Autowired
+    private FixtureService fixtureService;
+
     @Override
     public void save(Tournament t) {
         if(t.getName() == null || t.getName().isBlank()) {
@@ -53,5 +59,56 @@ public class TournamentService implements CRUD<Tournament>{
     public Tournament getById(int i) {
         return repoTournament.findById(i).orElseThrow(() -> new EntityNotFoundException("Tournament not found with id " + i));
     }
+
+    @org.springframework.transaction.annotation.Transactional
+    public void addTeamToTournament(int tournamentId, int teamId) {
+        Tournament tournament = getById(tournamentId);
+        if (!"DRAFT".equals(tournament.getTournamentState())) {
+            throw new IllegalStateException("Solo se pueden agregar equipos si el torneo está en borrador.");
+        }
+        cr.ac.una.SIGECA.domain.Team team = repoTeam.findById(teamId).orElseThrow(() -> new EntityNotFoundException("Equipo no encontrado con id " + teamId));
+        if (tournament.getTeams().contains(team)) {
+            throw new IllegalArgumentException("El equipo ya está inscrito en este torneo.");
+        }
         
+        tournament.getTeams().add(team);
+        team.getTournaments().add(tournament);
+        
+        repoTournament.save(tournament);
+        repoTeam.save(team);
+    }
+
+    @org.springframework.transaction.annotation.Transactional
+    public void removeTeamFromTournament(int tournamentId, int teamId) {
+        Tournament tournament = getById(tournamentId);
+        if (!"DRAFT".equals(tournament.getTournamentState())) {
+            throw new IllegalStateException("Solo se pueden eliminar equipos si el torneo está en borrador.");
+        }
+        cr.ac.una.SIGECA.domain.Team team = repoTeam.findById(teamId).orElseThrow(() -> new EntityNotFoundException("Equipo no encontrado con id " + teamId));
+        
+        tournament.getTeams().remove(team);
+        team.getTournaments().remove(tournament);
+        
+        repoTournament.save(tournament);
+        repoTeam.save(team);
+    }
+
+    @org.springframework.transaction.annotation.Transactional
+    public void launchTournament(int tournamentId) {
+        Tournament tournament = getById(tournamentId);
+        if (!"DRAFT".equals(tournament.getTournamentState())) {
+            throw new IllegalStateException("El torneo ya ha sido lanzado o finalizado.");
+        }
+        if (tournament.getTeams().size() < 2) {
+            throw new IllegalArgumentException("Debe haber al menos 2 equipos inscritos para lanzar el torneo.");
+        }
+
+        // Generar fixture
+        fixtureService.generateFixture(tournament);
+
+        // Cambiar estado a ACTIVE y status a true
+        tournament.setTournamentState("ACTIVE");
+        tournament.setStatus(true);
+        repoTournament.save(tournament);
+    }
 }

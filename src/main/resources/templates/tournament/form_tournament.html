@@ -40,6 +40,28 @@
                         </div>
                     </div>
 
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="matchDay" class="form-label required-field">Día de Juego Sugerido</label>
+                            <select class="form-select" id="matchDay" name="matchDay" required>
+                                <option value="SABADO" selected>Sábado</option>
+                                <option value="DOMINGO">Domingo</option>
+                                <option value="LUNES">Lunes</option>
+                                <option value="MARTES">Martes</option>
+                                <option value="MIERCOLES">Miércoles</option>
+                                <option value="JUEVES">Jueves</option>
+                                <option value="VIERNES">Viernes</option>
+                            </select>
+                            <div class="invalid-feedback">Debe seleccionar el día de juego sugerido.</div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="matchTime" class="form-label required-field">Hora de los Partidos</label>
+                            <input type="time" class="form-control" id="matchTime" name="matchTime" value="15:00" required>
+                            <div class="invalid-feedback">Debe indicar la hora de los partidos.</div>
+                        </div>
+                    </div>
+
                     <div class="mb-3">
                         <label for="sponsorId" class="form-label">Patrocinador (Opcional)</label>
                         <select class="form-select" id="sponsorId" name="sponsorId">
@@ -69,13 +91,14 @@
                         <button type="submit" class="btn btn-primary">Guardar Torneo</button>
                     </div>
                 </form>
-                
             </div>
         </div>
 
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 const form = document.getElementById('tournamentForm');
+                if (!form) return;
+                
                 const startDateInput = document.getElementById('startDate');
                 const endDateInput = document.getElementById('endDate');
                 const startDateError = document.getElementById('startDateError');
@@ -83,20 +106,21 @@
                 const refereeError = document.getElementById('refereeError');
 
                 // Ocultar mensajes de error al inicio
-                startDateError.style.display = 'none';
-                endDateError.style.display = 'none';
-                refereeError.style.display = 'none';
+                if (startDateError) startDateError.style.display = 'none';
+                if (endDateError) endDateError.style.display = 'none';
+                if (refereeError) refereeError.style.display = 'none';
 
                 // Establecer la fecha mínima para la fecha de inicio (hoy)
                 const today = new Date();
                 const formattedDate = today.toISOString().split('T')[0];
-                startDateInput.setAttribute('min', formattedDate);
+                if (startDateInput) startDateInput.setAttribute('min', formattedDate);
 
                 // Validar fechas cuando cambien
-                startDateInput.addEventListener('change', validateDates);
-                endDateInput.addEventListener('change', validateDates);
+                if (startDateInput) startDateInput.addEventListener('change', validateDates);
+                if (endDateInput) endDateInput.addEventListener('change', validateDates);
 
                 function validateDates() {
+                    if (!startDateInput || !endDateInput) return;
                     const startDate = new Date(startDateInput.value);
                     const endDate = new Date(endDateInput.value);
                     const today = new Date();
@@ -104,19 +128,19 @@
 
                     // Validar que la fecha de inicio no sea anterior a hoy
                     if (startDate < today) {
-                        startDateError.style.display = 'block';
+                        if (startDateError) startDateError.style.display = 'block';
                         startDateInput.classList.add('is-invalid');
                     } else {
-                        startDateError.style.display = 'none';
+                        if (startDateError) startDateError.style.display = 'none';
                         startDateInput.classList.remove('is-invalid');
                     }
 
                     // Validar que la fecha de fin no sea anterior a la fecha de inicio
                     if (endDate < startDate && endDateInput.value !== '') {
-                        endDateError.style.display = 'block';
+                        if (endDateError) endDateError.style.display = 'block';
                         endDateInput.classList.add('is-invalid');
                     } else {
-                        endDateError.style.display = 'none';
+                        if (endDateError) endDateError.style.display = 'none';
                         endDateInput.classList.remove('is-invalid');
                     }
 
@@ -139,16 +163,16 @@
                     // Validar que se haya seleccionado al menos un árbitro
                     const refereesSelected = document.querySelectorAll('.referee-checkbox:checked');
                     if (refereesSelected.length === 0) {
-                        refereeError.style.display = 'block';
+                        if (refereeError) refereeError.style.display = 'block';
                         event.preventDefault();
                     } else {
-                        refereeError.style.display = 'none';
+                        if (refereeError) refereeError.style.display = 'none';
                     }
 
                     // Si hay errores visibles, prevenir el envío
-                    if (startDateError.style.display === 'block' ||
-                            endDateError.style.display === 'block' ||
-                            refereeError.style.display === 'block') {
+                    if ((startDateError && startDateError.style.display === 'block') ||
+                        (endDateError && endDateError.style.display === 'block') ||
+                        (refereeError && refereeError.style.display === 'block')) {
                         event.preventDefault();
                     }
 

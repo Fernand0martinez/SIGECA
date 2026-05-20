@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package cr.ac.una.SIGECA.controller;
 
 import cr.ac.una.SIGECA.domain.Referee;
@@ -11,6 +7,8 @@ import cr.ac.una.SIGECA.logic.LogicReferee;
 import cr.ac.una.SIGECA.service.RefereeService;
 import cr.ac.una.SIGECA.service.SponsorshipService;
 import cr.ac.una.SIGECA.service.TournamentService;
+import cr.ac.una.SIGECA.service.TeamService;
+import cr.ac.una.SIGECA.service.MatchService;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.util.List;
@@ -24,10 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-/**
- *
- * @author kenda
- */
 @Controller
 @RequestMapping("/tournaments")
 public class TournamentController {
@@ -36,10 +30,16 @@ public class TournamentController {
     private TournamentService tournamentService;
 
     @Autowired
-    private SponsorshipService sponsorshipService; // Necesario para manejar los patrocinios
+    private SponsorshipService sponsorshipService;
 
     @Autowired
-    private RefereeService refereeService; // Nuevo servicio para árbitros
+    private RefereeService refereeService;
+
+    @Autowired
+    private TeamService teamService;
+
+    @Autowired
+    private MatchService matchService;
 
     @GetMapping("/admin/list")
     public String listTournaments(Model model, HttpServletRequest request) {
@@ -60,12 +60,9 @@ public class TournamentController {
         }
         return "tournament/registration_team"; 
     }
-    
-    
 
     @GetMapping("/admin/form")
     public String formTournament(Model model, HttpServletRequest request) {
-        
         List<Sponsorship> sponsorships = sponsorshipService.getAll();
         List<Referee> referees = refereeService.getAll();
         model.addAttribute("sponsorships", sponsorships);
@@ -83,6 +80,8 @@ public class TournamentController {
             @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(value = "sponsorId", required = false) Integer sponsorId,
             @RequestParam(value = "refereeIds", required = false) List<Integer> refereeIds,
+            @RequestParam(value = "matchDay", required = false) String matchDay,
+            @RequestParam(value = "matchTime", required = false) String matchTime,
             HttpServletRequest request,
             Model model,
             RedirectAttributes redirectAttributes) {
@@ -99,7 +98,6 @@ public class TournamentController {
             return "redirect:/tournaments/admin/form";
         }
 
-        
         boolean status = LocalDate.now().isBefore(endDate) && LocalDate.now().isBefore(startDate);
 
         Tournament tournament = new Tournament();
@@ -107,6 +105,9 @@ public class TournamentController {
         tournament.setStartDate(startDate);
         tournament.setEndDate(endDate);
         tournament.setStatus(status);
+        tournament.setTournamentState("DRAFT");
+        tournament.setMatchDay(matchDay != null ? matchDay : "SABADO");
+        tournament.setMatchTime(matchTime != null ? matchTime : "15:00");
 
         if (sponsorId != null) {
             Sponsorship sponsor = sponsorshipService.getById(sponsorId);
@@ -159,6 +160,8 @@ public class TournamentController {
             @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(value = "sponsorId", required = false) Integer sponsorId,
+            @RequestParam(value = "matchDay", required = false) String matchDay,
+            @RequestParam(value = "matchTime", required = false) String matchTime,
             RedirectAttributes redirectAttributes) {
 
         Tournament tournament = tournamentService.getById(id);
@@ -172,15 +175,15 @@ public class TournamentController {
             return "redirect:/tournaments/admin/edit?id=" + id;
         }
 
-        // Actualizar estado basado en fechas
         boolean status = LocalDate.now().isBefore(endDate) && LocalDate.now().isAfter(startDate);
 
         tournament.setName(name);
         tournament.setStartDate(startDate);
         tournament.setEndDate(endDate);
         tournament.setStatus(status);
+        if (matchDay != null) tournament.setMatchDay(matchDay);
+        if (matchTime != null) tournament.setMatchTime(matchTime);
 
-        // Actualizar patrocinio
         if (sponsorId != null) {
             Sponsorship sponsor = sponsorshipService.getById(sponsorId);
             tournament.setSponsor(sponsor);
@@ -195,19 +198,71 @@ public class TournamentController {
     }
 
     @GetMapping("/admin/details")
-    public String tournamentDetails(@RequestParam("id") int id, Model model) {
+    public String tournamentDetails(@RequestParam("id") int id, Model model, HttpServletRequest request) {
         Tournament tournament = tournamentService.getById(id);
         if (tournament == null) {
             return "redirect:/tournaments/admin/list";
         }
+        
+        List<cr.ac.una.SIGECA.domain.Team> availableTeams = teamService.listAllTeams();
+        availableTeams.removeAll(tournament.getTeams());
+        
         model.addAttribute("tournament", tournament);
+        model.addAttribute("availableTeams", availableTeams);
+        model.addAttribute("matches", matchService.getMatchesByTournament(id));
+        
+        if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
+            return "tournament/details_tournament :: contenido";
+        }
         return "tournament/details_tournament";
+    }
+
+    @PostMapping("/admin/addTeam")
+    public String addTeamToTournament(
+            @RequestParam("tournamentId") int tournamentId,
+            @RequestParam("teamId") int teamId,
+            HttpServletRequest request,
+            Model model) {
+        try {
+            tournamentService.addTeamToTournament(tournamentId, teamId);
+            model.addAttribute("success", "Equipo inscrito exitosamente");
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
+        }
+        return tournamentDetails(tournamentId, model, request);
+    }
+
+    @PostMapping("/admin/removeTeam")
+    public String removeTeamFromTournament(
+            @RequestParam("tournamentId") int tournamentId,
+            @RequestParam("teamId") int teamId,
+            HttpServletRequest request,
+            Model model) {
+        try {
+            tournamentService.removeTeamFromTournament(tournamentId, teamId);
+            model.addAttribute("success", "Equipo eliminado exitosamente");
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
+        }
+        return tournamentDetails(tournamentId, model, request);
+    }
+
+    @PostMapping("/admin/launch")
+    public String launchTournament(
+            @RequestParam("id") int tournamentId,
+            HttpServletRequest request,
+            Model model) {
+        try {
+            tournamentService.launchTournament(tournamentId);
+            model.addAttribute("success", "¡Torneo lanzado y fixture generado exitosamente!");
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
+        }
+        return tournamentDetails(tournamentId, model, request);
     }
 
     @GetMapping("/admin")
     public String mostrarVistaAdministrador() {
         return "administrador";
     }
-    
-    
 }
