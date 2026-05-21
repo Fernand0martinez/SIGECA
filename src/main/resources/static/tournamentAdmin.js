@@ -47,6 +47,18 @@ function loadTournamentView(url) {
 }
 
 document.addEventListener("click", function (e) {
+    const teamDetailsButton = e.target.closest(".btn-team-details");
+    if (teamDetailsButton) {
+        e.preventDefault();
+        const targetId = teamDetailsButton.dataset.teamTarget;
+        const detailsPanel = targetId ? document.getElementById(targetId) : null;
+        if (detailsPanel) {
+            const isActive = detailsPanel.classList.toggle("active");
+            teamDetailsButton.textContent = isActive ? "Ocultar detalles" : "Ver detalles";
+        }
+        return;
+    }
+
     const tabButton = e.target.closest(".tab-btn[data-tab-target]");
     if (tabButton) {
         e.preventDefault();
@@ -72,7 +84,11 @@ document.addEventListener("click", function (e) {
     if (backLink) {
         e.preventDefault();
         if (window.navegar) {
-            window.navegar("torneo");
+            if (document.querySelector('.nav-button[data-view="torneos"]')) {
+                window.navegar("torneos");
+            } else {
+                window.navegar("torneo");
+            }
         } else {
             loadTournamentView("/tournaments/admin/list");
         }

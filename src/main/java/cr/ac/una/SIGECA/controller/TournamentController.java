@@ -2,13 +2,14 @@ package cr.ac.una.SIGECA.controller;
 
 import cr.ac.una.SIGECA.domain.Referee;
 import cr.ac.una.SIGECA.domain.Sponsorship;
+import cr.ac.una.SIGECA.domain.Team;
 import cr.ac.una.SIGECA.domain.Tournament;
 import cr.ac.una.SIGECA.logic.LogicReferee;
+import cr.ac.una.SIGECA.service.MatchService;
 import cr.ac.una.SIGECA.service.RefereeService;
 import cr.ac.una.SIGECA.service.SponsorshipService;
-import cr.ac.una.SIGECA.service.TournamentService;
 import cr.ac.una.SIGECA.service.TeamService;
-import cr.ac.una.SIGECA.service.MatchService;
+import cr.ac.una.SIGECA.service.TournamentService;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.util.List;
@@ -48,20 +49,19 @@ public class TournamentController {
         if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
             return "tournament/list_tournament :: contenido";
         }
-        return "tournament/list_tournament"; 
+        return "tournament/list_tournament";
     }
-    
+
     @GetMapping("/user/registration")
     public String inscriptionTournament(Model model, HttpServletRequest request) {
         List<Tournament> tournaments = tournamentService.getAll();
         model.addAttribute("tournaments", tournaments);
-        // Asumiendo que teamService tiene un método para obtener los equipos del usuario actual
         model.addAttribute("userTeams", teamService.listAllTeams());
-        
+
         if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
             return "tournament/registration_team :: contenido";
         }
-        return "tournament/registration_team"; 
+        return "tournament/registration_team";
     }
 
     @GetMapping("/admin/form")
@@ -91,7 +91,6 @@ public class TournamentController {
             Model model,
             RedirectAttributes redirectAttributes) {
 
-        // Validación básica de fechas
         if (endDate.isBefore(startDate)) {
             if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
                 model.addAttribute("error", "La fecha de cierre no puede ser anterior a la fecha de inicio");
@@ -175,13 +174,11 @@ public class TournamentController {
             return "redirect:/tournaments/admin/list";
         }
 
-        // Validar fechas
         if (endDate.isBefore(startDate)) {
             redirectAttributes.addFlashAttribute("error", "La fecha de cierre no puede ser anterior a la fecha de inicio");
             return "redirect:/tournaments/admin/edit?id=" + id;
         }
-        
-        // Validar rangos de jugadores
+
         if (minPlayersPerTeam > maxPlayersPerTeam) {
             redirectAttributes.addFlashAttribute("error", "El mínimo de jugadores no puede ser mayor al máximo.");
             return "redirect:/tournaments/admin/edit?id=" + id;
@@ -205,14 +202,24 @@ public class TournamentController {
         if (tournament == null) {
             return "redirect:/tournaments/admin/list";
         }
-        
-        List<cr.ac.una.SIGECA.domain.Team> availableTeams = teamService.listAllTeams();
-        availableTeams.removeAll(tournament.getTeams());
-        
-        model.addAttribute("tournament", tournament);
-        model.addAttribute("availableTeams", availableTeams);
-        model.addAttribute("matches", matchService.getMatchesByTournament(id));
-        
+
+        populateTournamentDetailsModel(model, tournament, true);
+
+        if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
+            return "tournament/details_tournament :: contenido";
+        }
+        return "tournament/details_tournament";
+    }
+
+    @GetMapping("/user/details")
+    public String tournamentUserDetails(@RequestParam("id") int id, Model model, HttpServletRequest request) {
+        Tournament tournament = tournamentService.getById(id);
+        if (tournament == null) {
+            return "redirect:/tournaments/user/registration";
+        }
+
+        populateTournamentDetailsModel(model, tournament, false);
+
         if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
             return "tournament/details_tournament :: contenido";
         }
@@ -290,5 +297,15 @@ public class TournamentController {
     @GetMapping("/admin")
     public String mostrarVistaAdministrador() {
         return "administrador";
+    }
+
+    private void populateTournamentDetailsModel(Model model, Tournament tournament, boolean managementEnabled) {
+        List<Team> availableTeams = teamService.listAllTeams();
+        availableTeams.removeAll(tournament.getTeams());
+
+        model.addAttribute("tournament", tournament);
+        model.addAttribute("availableTeams", availableTeams);
+        model.addAttribute("matches", matchService.getMatchesByTournament(tournament.getId()));
+        model.addAttribute("managementEnabled", managementEnabled);
     }
 }

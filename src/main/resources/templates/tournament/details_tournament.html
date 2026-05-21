@@ -10,7 +10,7 @@
     </head>
     <body>
         <div class="tournament-container" th:fragment="contenido">
-            <a class="back-top-btn" href="#" onclick="return window.dashboardBack ? window.dashboardBack('torneo') : false;">← Volver</a>
+            <a class="back-top-btn" href="#" onclick="return window.dashboardBack ? window.dashboardBack('torneos', 'torneo') : false;">&larr; Volver</a>
 
             <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
             <div th:if="${success}" class="alert alert-success" role="alert" th:text="${success}"></div>
@@ -29,7 +29,7 @@
                     </p>
                 </div>
 
-                <div class="header-actions" th:if="${tournament.tournamentState == 'DRAFT' or tournament.tournamentState == null}">
+                <div class="header-actions" th:if="${managementEnabled and (tournament.tournamentState == 'DRAFT' or tournament.tournamentState == null)}">
                     <form th:action="@{/tournaments/admin/launch}" method="POST" class="tournament-launch-form">
                         <input type="hidden" name="id" th:value="${tournament.id}">
                         <button type="submit" class="btn-launch" th:disabled="${tournament.teams.size() < 2}">
@@ -48,7 +48,7 @@
                     </div>
 
                     <div id="teams-tab" class="tab-content active">
-                        <div class="add-team-panel" th:if="${tournament.tournamentState == 'DRAFT' or tournament.tournamentState == null}">
+                        <div class="add-team-panel" th:if="${managementEnabled and (tournament.tournamentState == 'DRAFT' or tournament.tournamentState == null)}">
                             <h3>Inscribir Nuevo Equipo</h3>
                             <form th:action="@{/tournaments/admin/addTeam}" method="POST" class="tournament-details-form add-team-row">
                                 <input type="hidden" name="tournamentId" th:value="${tournament.id}">
@@ -66,41 +66,73 @@
                         </div>
 
                         <div class="teams-list-wrapper">
-                            <h3>Equipos Participantes</h3>
+                            <div class="section-heading-row">
+                                <div>
+                                    <h3>Equipos Participantes</h3>
+                                    <p class="section-subtitle">Cada tarjeta permite revisar el equipo y desplegar la lista de jugadores inscritos.</p>
+                                </div>
+                                <span class="teams-summary-badge" th:text="${tournament.teams.size() + ' equipos inscritos'}">0 equipos inscritos</span>
+                            </div>
+
                             <div th:if="${tournament.teams.isEmpty()}" class="empty-state-card">
                                 <p>No hay equipos inscritos todavía.</p>
                             </div>
 
-                            <table class="teams-table" th:if="${!tournament.teams.isEmpty()}">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Nombre del Equipo</th>
-                                        <th>Capitán</th>
-                                        <th>Plantilla</th>
-                                        <th th:if="${tournament.tournamentState == 'DRAFT' or tournament.tournamentState == null}">Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr th:each="team : ${tournament.teams}">
-                                        <td th:text="${team.id}">1</td>
-                                        <td class="team-name-cell"><strong th:text="${team.name}">Nombre</strong></td>
-                                        <td th:text="${team.captain != null ? team.captain.getName() + ' ' + team.captain.getLastName() : 'Sin capitán'}">Capitán</td>
-                                        <td>
-                                            <span class="players-count-badge" th:text="${team.players.size() + ' jugadores'}">0 jugadores</span>
-                                        </td>
-                                        <td th:if="${tournament.tournamentState == 'DRAFT' or tournament.tournamentState == null}">
-                                            <form th:action="@{/tournaments/admin/removeTeam}" method="POST" class="remove-team-form" style="display:inline;">
-                                                <input type="hidden" name="tournamentId" th:value="${tournament.id}">
-                                                <input type="hidden" name="teamId" th:value="${team.id}">
-                                                <button type="submit" class="btn-remove-team remove-team-btn" title="Desinscribir equipo">
-                                                    Eliminar
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            <div class="team-cards-grid" th:if="${!tournament.teams.isEmpty()}">
+                                <article class="team-card" th:each="team : ${tournament.teams}">
+                                    <div class="team-card-header">
+                                        <div>
+                                            <span class="team-id-badge" th:text="${'Equipo #' + team.id}">Equipo #1</span>
+                                            <h4 th:text="${team.name}">Nombre del equipo</h4>
+                                        </div>
+                                        <span class="players-count-badge" th:text="${team.players.size() + ' jugadores'}">0 jugadores</span>
+                                    </div>
+
+                                    <div class="team-card-meta">
+                                        <div class="meta-item">
+                                            <span class="meta-label">Capitán</span>
+                                            <strong th:text="${team.captain != null ? team.captain.getName() + ' ' + team.captain.getLastName() : 'Sin capitán'}">Capitán</strong>
+                                        </div>
+                                        <div class="meta-item">
+                                            <span class="meta-label">Estado en torneo</span>
+                                            <strong th:text="${tournament.tournamentState == 'ACTIVE' ? 'Compitiendo' : (tournament.tournamentState == 'FINISHED' ? 'Participación finalizada' : 'Pendiente de inicio')}">Pendiente de inicio</strong>
+                                        </div>
+                                    </div>
+
+                                    <div class="team-card-actions">
+                                        <button type="button" class="btn-team-details" th:attr="data-team-target='team-details-' + ${team.id}">
+                                            Ver detalles
+                                        </button>
+
+                                        <form th:if="${managementEnabled and (tournament.tournamentState == 'DRAFT' or tournament.tournamentState == null)}"
+                                              th:action="@{/tournaments/admin/removeTeam}"
+                                              method="POST"
+                                              class="remove-team-form">
+                                            <input type="hidden" name="tournamentId" th:value="${tournament.id}">
+                                            <input type="hidden" name="teamId" th:value="${team.id}">
+                                            <button type="submit" class="btn-remove-team remove-team-btn" title="Desinscribir equipo">
+                                                Eliminar
+                                            </button>
+                                        </form>
+                                    </div>
+
+                                    <div class="team-card-details" th:id="${'team-details-' + team.id}">
+                                        <div class="detail-block">
+                                            <h5>Plantilla del equipo</h5>
+                                            <ul class="players-detail-list" th:if="${!team.players.isEmpty()}">
+                                                <li th:each="player : ${team.players}">
+                                                    <div>
+                                                        <strong th:text="${player.getName() + ' ' + player.getLastName()}">Jugador</strong>
+                                                        <span th:text="${player.position != null ? player.position : 'Sin posición'}">Posición</span>
+                                                    </div>
+                                                    <span class="player-extra" th:text="${player.dorsal > 0 ? 'Dorsal #' + player.dorsal : 'Sin dorsal'}">Dorsal #0</span>
+                                                </li>
+                                            </ul>
+                                            <p class="empty-inline-message" th:if="${team.players.isEmpty()}">Este equipo no tiene jugadores asociados.</p>
+                                        </div>
+                                    </div>
+                                </article>
+                            </div>
                         </div>
                     </div>
 
@@ -156,6 +188,32 @@
 
                 <aside class="details-sidebar">
                     <div class="sidebar-widget">
+                        <h3>Resumen del Campeonato</h3>
+                        <ul class="sidebar-list">
+                            <li>
+                                <strong>Estado:</strong>
+                                <span th:text="${tournament.tournamentState == null ? 'Borrador' : tournament.tournamentState}">Borrador</span>
+                            </li>
+                            <li>
+                                <strong>Equipos inscritos:</strong>
+                                <span th:text="${tournament.teams.size()}">0</span>
+                            </li>
+                            <li>
+                                <strong>Partidos generados:</strong>
+                                <span th:text="${matches.size()}">0</span>
+                            </li>
+                            <li>
+                                <strong>Mínimo por equipo:</strong>
+                                <span th:text="${tournament.minPlayersPerTeam}">0</span>
+                            </li>
+                            <li>
+                                <strong>Máximo por equipo:</strong>
+                                <span th:text="${tournament.maxPlayersPerTeam}">0</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="sidebar-widget">
                         <h3>Organización y Soporte</h3>
                         <ul class="sidebar-list">
                             <li>
@@ -163,16 +221,28 @@
                                 <span th:text="${tournament.sponsor != null ? tournament.sponsor.company + ' (' + tournament.sponsor.sponsorshipType + ')' : 'Sin patrocinador asignado'}">Patrocinador</span>
                             </li>
                             <li>
+                                <strong>Apoyo económico:</strong>
+                                <span th:text="${tournament.sponsor != null ? 'CRC ' + tournament.sponsor.amount : 'No registrado'}">No registrado</span>
+                            </li>
+                            <li>
+                                <strong>Espacio publicitario:</strong>
+                                <span th:text="${tournament.sponsor != null ? tournament.sponsor.advertisingSpace : 'No registrado'}">No registrado</span>
+                            </li>
+                            <li th:if="${tournament.referees != null and !tournament.referees.isEmpty()}">
                                 <strong>Árbitros Asociados:</strong>
                                 <div class="referees-mini-list">
                                     <span class="referee-pill" th:each="ref : ${tournament.referees}" th:text="${ref.getName() + ' ' + ref.getLastName()}"></span>
                                 </div>
                             </li>
+                            <li th:if="${tournament.referees == null or tournament.referees.isEmpty()}">
+                                <strong>Árbitros Asociados:</strong>
+                                <span>Sin árbitros asignados.</span>
+                            </li>
                         </ul>
                     </div>
 
                     <div class="sidebar-widget return-widget">
-                        <a href="/tournaments/admin/list" class="btn btn-secondary back-tournament-list" style="display:block; text-align:center; margin:0;">
+                        <a href="#" class="btn btn-secondary back-tournament-list" style="display:block; text-align:center; margin:0;">
                             Volver al Listado
                         </a>
                     </div>

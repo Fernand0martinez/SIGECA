@@ -55,6 +55,13 @@ document.addEventListener("DOMContentLoaded", function () {
     async function verTorneos() {
         await cargarContenido("/tournaments/user/registration", "Cargando torneos...");
         inyectarCSS("/css/tournament.css");
+        await inyectarScript("/tournamentAdmin.js");
+    }
+
+    async function verDetalleTorneo(url) {
+        await cargarContenido(url, "Cargando detalle del torneo...");
+        inyectarCSS("/css/tournament.css");
+        await inyectarScript("/tournamentAdmin.js");
     }
 
     async function gestionarEquipo() {
@@ -304,6 +311,12 @@ document.addEventListener("DOMContentLoaded", function () {
             e.preventDefault();
             const defaultView = document.querySelector(".container")?.dataset.defaultView || "canchas";
             navegar(defaultView);
+            return;
+        }
+        const tournamentDetailsLink = e.target.closest(".details-tournament-link");
+        if (tournamentDetailsLink && document.querySelector('.nav-button[data-view="torneos"]')) {
+            e.preventDefault();
+            verDetalleTorneo(tournamentDetailsLink.getAttribute("href")).catch(console.error);
         }
     });
 
