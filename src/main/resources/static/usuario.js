@@ -54,11 +54,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function verTorneos() {
         await cargarContenido("/tournaments/user/registration", "Cargando torneos...");
+        inyectarCSS("/css/tournament.css");
     }
 
     async function gestionarEquipo() {
         await cargarContenido("/teams/user/list", "Cargando equipos...");
         inyectarCSS("/css/styles.css");
+        inyectarCSS("/css/team-user.css");
+        inyectarCSS("/css/back-button.css");
         await inyectarScript("/js/functionTeamUser.js");
         if (typeof initNewTeamButton === "function") initNewTeamButton();
         if (typeof initDeleteHandlerUser === "function") initDeleteHandlerUser();
@@ -305,6 +308,25 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     document.addEventListener("submit", function (e) {
+        const tournamentRegistrationForm = e.target.closest("form[action='/tournaments/user/register']");
+        if (tournamentRegistrationForm) {
+            e.preventDefault();
+            const xhttp = new XMLHttpRequest();
+            xhttp.open("POST", tournamentRegistrationForm.action, true);
+            xhttp.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+            xhttp.onreadystatechange = function () {
+                if (this.readyState !== 4) return;
+                if (this.status === 200) {
+                    content.innerHTML = this.responseText;
+                    inyectarCSS("/css/tournament.css");
+                } else {
+                    Swal.fire("Error", "No se pudo completar la inscripción al torneo.", "error");
+                }
+            };
+            xhttp.send(new FormData(tournamentRegistrationForm));
+            return;
+        }
+
         const reservationForm = e.target.closest("form[action='/reservations/user/save'], form[action='/reservations/user/update']");
         if (reservationForm) {
             e.preventDefault();

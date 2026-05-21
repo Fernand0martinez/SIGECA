@@ -8,12 +8,11 @@
         <link rel="stylesheet" th:href="@{/css/back-button.css}">
     </head>
     <body>
-        <a class="back-top-btn" href="#" onclick="return window.dashboardBack ? window.dashboardBack('torneos', 'torneo') : false;">← Volver</a>
-        <div class="tournament-container">
-            <div class="form-container" th:fragment="contenido">
+        <a class="back-top-btn" href="#" onclick="return window.dashboardBack ? window.dashboardBack('torneo') : false;">← Volver</a>
+        <div class="tournament-container" th:fragment="contenido">
+            <div class="form-container">
                 <h2>Crear Nuevo Torneo</h2>
 
-                <!-- Mensajes de alerta -->
                 <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
                 <div th:if="${success}" class="alert alert-success" role="alert" th:text="${success}"></div>
 
@@ -42,7 +41,19 @@
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="matchDay" class="form-label required-field">Día de Juego Sugerido</label>
+                            <label for="minPlayersPerTeam" class="form-label required-field">Jugadores Mínimos por Equipo</label>
+                            <input type="number" class="form-control" id="minPlayersPerTeam" name="minPlayersPerTeam" value="5" min="1" required>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="maxPlayersPerTeam" class="form-label required-field">Jugadores Máximos por Equipo</label>
+                            <input type="number" class="form-control" id="maxPlayersPerTeam" name="maxPlayersPerTeam" value="20" min="1" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="matchDay" class="form-label required-field">Día de Juego</label>
                             <select class="form-select" id="matchDay" name="matchDay" required>
                                 <option value="SABADO" selected>Sábado</option>
                                 <option value="DOMINGO">Domingo</option>
@@ -66,8 +77,8 @@
                         <label for="sponsorId" class="form-label">Patrocinador (Opcional)</label>
                         <select class="form-select" id="sponsorId" name="sponsorId">
                             <option value="">-- Seleccione un patrocinador --</option>
-                            <option th:each="sponsor : ${sponsorships}" 
-                                    th:value="${sponsor.id}" 
+                            <option th:each="sponsor : ${sponsorships}"
+                                    th:value="${sponsor.id}"
                                     th:text="${sponsor.company + ' (' + sponsor.sponsorshipType + ')'}">
                             </option>
                         </select>
@@ -76,10 +87,13 @@
                     <div class="mb-3">
                         <label class="form-label required-field">Árbitros (Seleccione al menos uno)</label>
                         <div class="form-check" th:each="referee : ${refeeres}">
-                            <input class="form-check-input referee-checkbox" type="checkbox" 
-                                   th:value="${referee.id}" th:id="${'referee-' + referee.id}"
+                            <input class="form-check-input referee-checkbox"
+                                   type="checkbox"
+                                   th:value="${referee.id}"
+                                   th:id="${'referee-' + referee.id}"
                                    name="refereeIds">
-                            <label class="form-check-label" th:for="${'referee-' + referee.id}" 
+                            <label class="form-check-label"
+                                   th:for="${'referee-' + referee.id}"
                                    th:text="${referee.getName() + ' ' + referee.getLastName() + ' (Experiencia: ' + referee.experience + ' años)'}">
                             </label>
                         </div>
@@ -98,81 +112,72 @@
             document.addEventListener('DOMContentLoaded', function () {
                 const form = document.getElementById('tournamentForm');
                 if (!form) return;
-                
+
                 const startDateInput = document.getElementById('startDate');
                 const endDateInput = document.getElementById('endDate');
                 const startDateError = document.getElementById('startDateError');
                 const endDateError = document.getElementById('endDateError');
                 const refereeError = document.getElementById('refereeError');
 
-                // Ocultar mensajes de error al inicio
                 if (startDateError) startDateError.style.display = 'none';
                 if (endDateError) endDateError.style.display = 'none';
                 if (refereeError) refereeError.style.display = 'none';
 
-                // Establecer la fecha mínima para la fecha de inicio (hoy)
                 const today = new Date();
                 const formattedDate = today.toISOString().split('T')[0];
                 if (startDateInput) startDateInput.setAttribute('min', formattedDate);
 
-                // Validar fechas cuando cambien
                 if (startDateInput) startDateInput.addEventListener('change', validateDates);
                 if (endDateInput) endDateInput.addEventListener('change', validateDates);
 
                 function validateDates() {
                     if (!startDateInput || !endDateInput) return;
-                    const startDate = new Date(startDateInput.value);
-                    const endDate = new Date(endDateInput.value);
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0);
 
-                    // Validar que la fecha de inicio no sea anterior a hoy
-                    if (startDate < today) {
-                        if (startDateError) startDateError.style.display = 'block';
+                    const startDate = startDateInput.value ? new Date(startDateInput.value) : null;
+                    const endDate = endDateInput.value ? new Date(endDateInput.value) : null;
+                    const currentDay = new Date();
+                    currentDay.setHours(0, 0, 0, 0);
+
+                    if (startDate && startDate < currentDay) {
+                        startDateError.style.display = 'block';
                         startDateInput.classList.add('is-invalid');
                     } else {
-                        if (startDateError) startDateError.style.display = 'none';
+                        startDateError.style.display = 'none';
                         startDateInput.classList.remove('is-invalid');
                     }
 
-                    // Validar que la fecha de fin no sea anterior a la fecha de inicio
-                    if (endDate < startDate && endDateInput.value !== '') {
-                        if (endDateError) endDateError.style.display = 'block';
+                    if (startDate && endDate && endDate < startDate) {
+                        endDateError.style.display = 'block';
                         endDateInput.classList.add('is-invalid');
                     } else {
-                        if (endDateError) endDateError.style.display = 'none';
+                        endDateError.style.display = 'none';
                         endDateInput.classList.remove('is-invalid');
                     }
 
-                    // Establecer la fecha mínima para la fecha de fin
                     if (startDateInput.value) {
                         endDateInput.setAttribute('min', startDateInput.value);
                     }
                 }
 
-                // Validar el formulario antes de enviar
                 form.addEventListener('submit', function (event) {
                     if (!form.checkValidity()) {
                         event.preventDefault();
                         event.stopPropagation();
                     }
 
-                    // Validar fechas
                     validateDates();
 
-                    // Validar que se haya seleccionado al menos un árbitro
                     const refereesSelected = document.querySelectorAll('.referee-checkbox:checked');
                     if (refereesSelected.length === 0) {
-                        if (refereeError) refereeError.style.display = 'block';
+                        refereeError.style.display = 'block';
                         event.preventDefault();
                     } else {
-                        if (refereeError) refereeError.style.display = 'none';
+                        refereeError.style.display = 'none';
                     }
 
-                    // Si hay errores visibles, prevenir el envío
-                    if ((startDateError && startDateError.style.display === 'block') ||
-                        (endDateError && endDateError.style.display === 'block') ||
-                        (refereeError && refereeError.style.display === 'block')) {
+                    if (startDateError.style.display === 'block' ||
+                        endDateError.style.display === 'block' ||
+                        refereeError.style.display === 'block') {
                         event.preventDefault();
                     }
 

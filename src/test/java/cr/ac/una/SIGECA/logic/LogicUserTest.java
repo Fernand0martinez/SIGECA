@@ -4,7 +4,6 @@ import cr.ac.una.SIGECA.domain.User;
 import cr.ac.una.SIGECA.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.junit.jupiter.api.Assertions.*;

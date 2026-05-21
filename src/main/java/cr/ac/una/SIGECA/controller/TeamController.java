@@ -1,9 +1,14 @@
 package cr.ac.una.SIGECA.controller;
 
 import cr.ac.una.SIGECA.domain.Team;
+import cr.ac.una.SIGECA.domain.Player;
 import cr.ac.una.SIGECA.service.PlayerService;
 import cr.ac.una.SIGECA.service.TeamService;
+import jakarta.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -44,26 +49,58 @@ public class TeamController {
     @GetMapping("/user/form")
     public String showTeamFormUser(
             Model model,
+            @RequestHeader(value = "X-Requested-With", required = false) String requestedWith,
             @RequestParam(value = "idTeam", required = false) Integer idTeam) {
 
         Team team = (idTeam != null && idTeam > 0)
                 ? teamService.findById(idTeam)
                 : new Team();
         model.addAttribute("team", team);
-        
-        model.addAttribute("players", playerService.getAll());
 
-        return "team/team_form_user";    
+        List<Player> players = playerService.getAll();
+        model.addAttribute("players", players);
+        model.addAttribute("memberDorsals", team.getMembers().stream()
+                .collect(Collectors.toMap(member -> member.getPlayer().getId(), member -> member.getDorsal())));
+        model.addAttribute("selectedPlayerIds", team.getPlayers().stream().map(Player::getId).toList());
+        model.addAttribute("selectedCaptainId", team.getCaptain() != null ? team.getCaptain().getId() : null);
+
+        if ("XMLHttpRequest".equals(requestedWith)) {
+            return "team/team_form_user :: contenido";
+        }
+        return "team/team_form_user";
     }
 
     // SAVE, DELETE y FILTER devuelven solo la tabla
     @PostMapping("/user/save")
-    public String saveTeamUser(@ModelAttribute Team team, Model model) {
+    public String saveTeamUser(
+            @ModelAttribute Team team,
+            @RequestParam(value = "playerIds", required = false) List<Integer> playerIds,
+            @RequestParam(value = "captainId", required = false) Integer captainId,
+            HttpServletRequest request,
+            Model model) {
+        Map<Integer, Integer> dorsalByPlayer = new HashMap<>();
         try {
-            teamService.saveTeam(team);
+            if (playerIds != null) {
+                for (Integer playerId : playerIds) {
+                    String dorsalValue = request.getParameter("dorsal_" + playerId);
+                    if (dorsalValue != null && !dorsalValue.isBlank()) {
+                        dorsalByPlayer.put(playerId, Integer.valueOf(dorsalValue));
+                    }
+                }
+            }
+            teamService.saveTeamWithMembers(team, playerIds, captainId, dorsalByPlayer);
             model.addAttribute("success", "Team saved successfully");
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
+            model.addAttribute("team", team);
+            model.addAttribute("players", playerService.getAll());
+            model.addAttribute("memberDorsals", dorsalByPlayer);
+            model.addAttribute("selectedPlayerIds", playerIds != null ? playerIds : List.of());
+            model.addAttribute("selectedCaptainId", captainId);
+            if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
+                return "team/team_form_user :: contenido";
+            }
+            return "team/team_form_user";
         }
         model.addAttribute("teams", teamService.listAllTeams());        
         return "team/team_table_user";

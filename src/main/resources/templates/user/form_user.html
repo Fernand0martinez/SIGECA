@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${modo == 'editar' ? 'Editar Jugador | SIGECA' : 'Fichaje de Jugador | SIGECA'}">Formulario de Usuario</title>
+    <title th:text="${modo == 'editar' ? 'Editar Usuario | SIGECA' : 'Registro de Usuario | SIGECA'}">Formulario de Usuario</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -19,11 +19,10 @@
             <h1 th:text="${modo == 'editar' ? 'Actualizar Ficha' : 'Nuevo Registro'}">Registro de Usuario</h1>
             <p class="login-subtitle">Completa los datos para formar parte del equipo SIGECA.</p>
 
-            <form class="login-form" th:action="@{/login/register}" method="POST">
+            <form class="login-form" id="userForm" th:action="@{/login/register}" method="POST">
                 <input type="hidden" id="userId" name="userId" th:if="${usuario != null}" th:value="${usuario.idCard}">
 
                 <div class="grid-form">
-                    <!-- Datos de Cuenta -->
                     <div class="form-group">
                         <label for="nameUser">Nombre de Usuario</label>
                         <input type="text" id="nameUser" name="nameUser" maxlength="20" placeholder="Ej: goleador99" required th:value="${usuario.nameUser != null ? usuario.nameUser : ''}">
@@ -41,7 +40,6 @@
                         <span class="field-info" th:text="${modo == 'editar' ? 'Déjala vacía para conservar la actual.' : 'Usa una clave segura de al menos 8 caracteres.'}">Usa una clave segura.</span>
                     </div>
 
-                    <!-- Datos Personales -->
                     <div class="form-group">
                         <label for="idCard">Cédula de Identidad</label>
                         <input type="text" id="idCard" name="idCard" maxlength="12" placeholder="Ej: 112340567" required th:value="${usuario.idCard != null ? usuario.idCard : ''}" th:readonly="${modo == 'editar'}">
@@ -97,9 +95,11 @@
                     </div>
                 </div>
 
-                <div th:if="${param.error}" class="error-message">
-                    <strong>¡Ocurrió un error!</strong>
-                    <span th:switch="${param.error}">
+                <div th:with="activeError=${errorCode != null ? errorCode : (param.error != null ? param.error[0] : null)}"
+                     th:if="${activeError != null}" class="error-message">
+                    <strong>Ocurrió un error.</strong>
+                    <span th:switch="${activeError}">
+                        <span th:case="'UsuarioNoEncontrado'">No se encontró el usuario que intentas editar.</span>
                         <span th:case="'CedulaRepetida'">Esta cédula ya está registrada.</span>
                         <span th:case="'UsuarioRepetido'">El nombre de usuario ya existe.</span>
                         <span th:case="'CorreoRepetido'">El correo electrónico ya está registrado.</span>
@@ -107,12 +107,13 @@
                         <span th:case="'PasswordRequerido'">Debes ingresar una contraseña para registrar el usuario.</span>
                         <span th:case="'TelefonoInvalido'">El número de teléfono debe ser de Costa Rica (8 dígitos).</span>
                         <span th:case="'ErrorAlEnviarCorreo'">No se pudo enviar el correo de verificación. Revisa la configuración SMTP.</span>
-                        <span th:case="'ErrorAlGuardar'">Error técnico al guardar ficha.</span>
+                        <span th:case="'ErrorAlActualizar'">No se pudo actualizar el usuario.</span>
+                        <span th:case="'ErrorAlGuardar'">Error técnico al guardar la ficha.</span>
                         <span th:case="*">Revisa los datos ingresados.</span>
                     </span>
                 </div>
 
-                <button type="submit" class="btn-submit" th:text="${modo == 'editar' ? 'ACTUALIZAR FICHA' : 'COMPLETAR REGISTRO'}" data-tooltip="¡Confirma tus datos para jugar!">
+                <button type="submit" class="btn-submit" th:text="${modo == 'editar' ? 'ACTUALIZAR FICHA' : 'COMPLETAR REGISTRO'}" data-tooltip="Confirma tus datos para jugar">
                     REGISTRARSE
                 </button>
             </form>
@@ -124,11 +125,78 @@
     </main>
 
     <script>
-        document.getElementById('togglePass').addEventListener('click', function() {
-            const passInput = document.getElementById('password');
-            const type = passInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            passInput.setAttribute('type', type);
-        });
+        function bindPasswordToggle() {
+            const toggleButton = document.getElementById('togglePass');
+            if (!toggleButton || toggleButton.dataset.bound === 'true') {
+                return;
+            }
+
+            toggleButton.dataset.bound = 'true';
+            toggleButton.addEventListener('click', function() {
+                const passInput = document.getElementById('password');
+                const type = passInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passInput.setAttribute('type', type);
+            });
+        }
+
+        function bindUserFormAjax() {
+            const form = document.getElementById('userForm');
+            if (!form || form.dataset.bound === 'true') {
+                return;
+            }
+
+            form.dataset.bound = 'true';
+            form.addEventListener('submit', async function(event) {
+                event.preventDefault();
+
+                const submitButton = form.querySelector('button[type="submit"]');
+                if (submitButton) {
+                    submitButton.disabled = true;
+                }
+
+                try {
+                    const response = await fetch(form.action, {
+                        method: form.method,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: new FormData(form)
+                    });
+
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                        return;
+                    }
+
+                    const html = await response.text();
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newShell = doc.querySelector('.login-shell');
+                    const currentShell = document.querySelector('.login-shell');
+
+                    if (newShell && currentShell) {
+                        currentShell.replaceWith(newShell);
+                        bindPasswordToggle();
+                        bindUserFormAjax();
+                    } else {
+                        document.open();
+                        document.write(html);
+                        document.close();
+                    }
+                } catch (error) {
+                    console.error('Error al enviar el formulario de usuario:', error);
+                } finally {
+                    const currentForm = document.getElementById('userForm');
+                    const currentButton = currentForm?.querySelector('button[type="submit"]');
+                    if (currentButton) {
+                        currentButton.disabled = false;
+                    }
+                }
+            });
+        }
+
+        bindPasswordToggle();
+        bindUserFormAjax();
     </script>
 </body>
 </html>

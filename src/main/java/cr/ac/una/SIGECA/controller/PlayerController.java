@@ -64,7 +64,7 @@ public class PlayerController {
     }
 
     @GetMapping("/admin/create")
-    public String formPlayer(HttpServletRequest request) {
+    public String formPlayer(HttpServletRequest request, Model model) {
         if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
             return "player/form_jugador :: contenido";
         }
@@ -83,18 +83,17 @@ public class PlayerController {
             @RequestParam("lastName") String lastName,
             @RequestParam("age") int age,
             @RequestParam("position") String position,
-            @RequestParam("mail") String mail,
+            @RequestParam(value = "mail", required = false) String mail,
             @RequestParam("gender") char gender,
-            @RequestParam("dorsal") Integer dorsal,
-            @RequestParam("goal") Integer goal,
-            @RequestParam("assist") Integer assist,
+            @RequestParam(value = "goal", required = false) Integer goal,
+            @RequestParam(value = "assist", required = false) Integer assist,
             @RequestParam("admonished") String admonished,
             HttpServletRequest request,
             Model model
     ) {
         boolean isAjax = "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
         User user = UserData.getUser();
-        String mensaje = LogicPlayer.validateRegister(id, name, lastName, age, position, mail, gender, dorsal, goal, assist, admonished, ser);
+        String mensaje = LogicPlayer.validateRegister(id, name, lastName, age, position, mail, gender, goal, assist, admonished, ser);
 
         if (!mensaje.isEmpty()) {
             model.addAttribute("mensaje", mensaje);
@@ -102,7 +101,7 @@ public class PlayerController {
             return isAjax ? "player/form_jugador :: contenido" : "player/form_jugador";
         }
 
-        Player player = new Player(id, name, lastName, mail, age, gender, dorsal, position, goal, assist, admonished);
+        Player player = new Player(id, name, lastName, mail == null ? "" : mail, age, gender, 0, position, goal == null ? 0 : goal, assist == null ? 0 : assist, admonished);
         ser.save(player);
         players = ser.getAll();
 
@@ -212,11 +211,10 @@ public class PlayerController {
             @RequestParam("lastName") String lastName,
             @RequestParam("age") Integer age,
             @RequestParam("position") String position,
-            @RequestParam("mail") String mail,
+            @RequestParam(value = "mail", required = false) String mail,
             @RequestParam("gender") char gender,
-            @RequestParam("dorsal") Integer dorsal,
-            @RequestParam("goal") Integer goal,
-            @RequestParam("assist") Integer assist,
+            @RequestParam(value = "goal", required = false) Integer goal,
+            @RequestParam(value = "assist", required = false) Integer assist,
             @RequestParam("admonished") String admonished,
             @RequestParam(value = "page", defaultValue = "1") int page,
             HttpServletRequest request,
@@ -224,16 +222,16 @@ public class PlayerController {
     ) {
         boolean isAjax = "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
         User user = UserData.getUser();
-        String mensaje = LogicPlayer.validateRegister(" ", name, lastName, age, position, mail, gender, dorsal, goal, assist, admonished, ser);
+        String mensaje = LogicPlayer.validateRegister("-", name, lastName, age, position, mail, gender, goal, assist, admonished, ser);
         if (mensaje.length() > 0) {
             model.addAttribute("mensaje", mensaje);
             model.addAttribute("tipo", "Alerta");
-            Player player = new Player(id, dorsal, position, goal, assist, admonished, idCard, name, lastName, mail, age, gender);
+            Player player = new Player(id, 0, position, goal == null ? 0 : goal, assist == null ? 0 : assist, admonished, idCard, name, lastName, mail == null ? "" : mail, age, gender);
             model.addAttribute("p", player);
             return isAjax ? "player/editar_jugador :: contenido" : "player/editar_jugador";
         }
 
-        Player player = new Player(id, dorsal, position, goal, assist, admonished, idCard, name, lastName, mail, age, gender);
+        Player player = new Player(id, 0, position, goal == null ? 0 : goal, assist == null ? 0 : assist, admonished, idCard, name, lastName, mail == null ? "" : mail, age, gender);
         ser.save(player);
         model.addAttribute("mensaje", "Jugador editado exitosamente.");
         model.addAttribute("tipo", "success");

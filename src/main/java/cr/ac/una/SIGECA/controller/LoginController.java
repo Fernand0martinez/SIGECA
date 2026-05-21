@@ -1,34 +1,27 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package cr.ac.una.SIGECA.controller;
 
-import cr.ac.una.SIGECA.logic.LogicUser;
 import cr.ac.una.SIGECA.domain.User;
+import cr.ac.una.SIGECA.logic.LogicUser;
+import cr.ac.una.SIGECA.service.EmailService;
 import jakarta.mail.MessagingException;
-import org.springframework.ui.Model;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-/**
- *
- * @author crist
- */
 @Controller
 @RequestMapping("/login")
 public class LoginController {
 
     @Autowired
     private LogicUser logUser;
-    
+
     @Autowired
-    private cr.ac.una.SIGECA.service.EmailService emailService;
+    private EmailService emailService;
 
     @GetMapping("/home")
     public String home() {
@@ -85,11 +78,11 @@ public class LoginController {
         if (logUser.verifyUser(username, code)) {
             model.addAttribute("mensaje", "Cuenta activada con éxito. Ya puedes iniciar sesión.");
             return "index";
-        } else {
-            model.addAttribute("error", "Código incorrecto. Inténtalo de nuevo.");
-            model.addAttribute("username", username);
-            return "user/verify";
         }
+
+        model.addAttribute("error", "Código incorrecto. Inténtalo de nuevo.");
+        model.addAttribute("username", username);
+        return "user/verify";
     }
 
     @GetMapping("/supervisor")
@@ -104,14 +97,10 @@ public class LoginController {
             if (user == null) {
                 return "redirect:/users/list?error=UsuarioNoEncontrado";
             }
-            model.addAttribute("usuario", user);
-            model.addAttribute("modo", "editar");
-        } else {
-            User user = new User();
-            model.addAttribute("usuario", user );
-            model.addAttribute("modo", "registrar");
+            return prepareUserForm(model, user, "editar", null);
         }
-        return "user/form_user";
+
+        return prepareUserForm(model, new User(), "registrar", null);
     }
 
     @PostMapping({"/register", "/registrar"})
@@ -126,62 +115,81 @@ public class LoginController {
             @RequestParam String lastName,
             @RequestParam String mail,
             @RequestParam int age,
-            @RequestParam char gender) {
+            @RequestParam char gender,
+            Model model) {
+
+        User formUser = new User(nameUser, password, role, phone, idCard, name, lastName, mail, age, gender);
 
         if (userId != null && !userId.isEmpty()) {
-            // Para editar
-            User existingUser = logUser.getUserById(nameUser);
+            User existingUser = logUser.getUserById(userId);
             if (existingUser == null) {
-                return "redirect:/users/list?error=UsuarioNoEncontrado";
-            } else {
-                User newUser = new User(nameUser, password, role, phone, userId, name, lastName, mail, age, gender);
-                boolean success = logUser.updateUser(newUser);
-                return success
-                        ? "redirect:/login/supervisor?cargarVista=usuarios"
-                        : "redirect:/users/list?error=ErrorAlActualizar";
-            }
-        } else {
-            // Para registrar
-            if (password == null || password.isBlank()) {
-                return "redirect:/login/form?error=PasswordRequerido";
-            }
-            User newUser = new User(nameUser, password, role, phone, idCard, name, lastName, mail, age, gender);
-
-            // Validaciones personalizadas con redirección al formulario correcto
-            if (logUser.existUser(idCard)) {
-                return "redirect:/login/form?error=CedulaRepetida";
-            }
-            if (logUser.getUserById(nameUser) != null) {
-                return "redirect:/login/form?error=UsuarioRepetido";
-            }
-            if (logUser.existsByMail(mail)) {
-                return "redirect:/login/form?error=CorreoRepetido";
-            }
-            if (!newUser.getMail().matches("^[\\w.%+-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
-                return "redirect:/login/form?error=EmailInvalido";
-            }
-            if (!newUser.getPhone().matches("^(\\+506)?[24678]\\d{7}$")) {
-                return "redirect:/login/form?error=TelefonoInvalido";
+                return prepareUserForm(model, formUser, "editar", "UsuarioNoEncontrado");
             }
 
-            // Generar código de verificación
-            String code = logUser.generateVerificationCode();
-            newUser.setVerificationCode(code);
-            newUser.setVerified(false);
-
-            boolean success = logUser.saveUser(newUser);
-            if (success) {
-                try {
-                    emailService.sendVerificationEmail(newUser.getMail(), newUser.getName(), code);
-                    return "redirect:/login/verify?username=" + newUser.getNameUser();
-                } catch (MessagingException | IllegalStateException e) {
-                    e.printStackTrace();
-                    return "redirect:/login/form?error=ErrorAlEnviarCorreo";
-                }
-            } else {
-                return "redirect:/login/form?error=ErrorAlGuardar";
+            User newUser = new User(nameUser, password, role, phone, userId, name, lastName, mail, age, gender);
+            String editValidationError = validateUserInput(newUser, true);
+            if (editValidationError != null) {
+                return prepareUserForm(model, newUser, "editar", editValidationError);
             }
+
+            boolean success = logUser.updateUser(newUser);
+            return success
+                    ? "redirect:/login/supervisor?cargarVista=usuarios"
+                    : prepareUserForm(model, newUser, "editar", "ErrorAlActualizar");
+        }
+
+        if (password == null || password.isBlank()) {
+            return prepareUserForm(model, formUser, "registrar", "PasswordRequerido");
+        }
+
+        String registerValidationError = validateUserInput(formUser, false);
+        if (registerValidationError != null) {
+            return prepareUserForm(model, formUser, "registrar", registerValidationError);
+        }
+
+        String code = logUser.generateVerificationCode();
+        formUser.setVerificationCode(code);
+        formUser.setVerified(false);
+
+        boolean success = logUser.saveUser(formUser);
+        if (!success) {
+            return prepareUserForm(model, formUser, "registrar", "ErrorAlGuardar");
+        }
+
+        try {
+            emailService.sendVerificationEmail(formUser.getMail(), formUser.getName(), code);
+            return "redirect:/login/verify?username=" + formUser.getNameUser();
+        } catch (MessagingException | IllegalStateException e) {
+            e.printStackTrace();
+            return prepareUserForm(model, formUser, "registrar", "ErrorAlEnviarCorreo");
         }
     }
 
+    private String validateUserInput(User user, boolean editing) {
+        if (!editing && logUser.existUser(user.getIdCard())) {
+            return "CedulaRepetida";
+        }
+        if (!editing && logUser.getUserById(user.getNameUser()) != null) {
+            return "UsuarioRepetido";
+        }
+        if (!editing && logUser.existsByMail(user.getMail())) {
+            return "CorreoRepetido";
+        }
+        if (user.getMail() == null || !user.getMail().matches("^[\\w.%+-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
+            return "EmailInvalido";
+        }
+        if (user.getPhone() == null || !user.getPhone().matches("^(\\+506)?[24678]\\d{7}$")) {
+            return "TelefonoInvalido";
+        }
+        return null;
+    }
+
+    private String prepareUserForm(Model model, User user, String mode, String errorCode) {
+        model.addAttribute("usuario", user);
+        model.addAttribute("modo", mode);
+        if (errorCode != null && !errorCode.isBlank()) {
+            model.addAttribute("errorCode", errorCode);
+        }
+        return "user/form_user";
+    }
 }

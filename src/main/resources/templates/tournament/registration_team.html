@@ -13,7 +13,11 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
     </head>
     <body>
         <div class="tournament-container" th:fragment="contenido">
-            <h2>Lista de Torneos</h2>
+            <h2>Inscripción a Torneos</h2>
+
+            <!-- Mensajes de alerta -->
+            <div th:if="${error}" class="alert alert-danger" style="color: red;" role="alert" th:text="${error}"></div>
+            <div th:if="${success}" class="alert alert-success" style="color: green;" role="alert" th:text="${success}"></div>
 
             <div class="main-content">
                 <div class="table-container">
@@ -21,20 +25,21 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
                         <thead>
                             <tr>
                                 <th>Nombre</th>
-                                <th>Fecha de Inicio</th>
-                                <th>Fecha de Cierre</th>
-                                <th>Estado</th>
-                                <th>Acciones</th>
+                                <th>Acción</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr th:each="tournament : ${tournaments}">
                                 <td th:text="${tournament.name}">Nombre Torneo</td>
-                                <td th:text="${tournament.startDate}">01/01/2025</td>
-                                <td th:text="${tournament.endDate}">10/01/2025</td>
-                                <td th:text="${tournament.status? 'En curso': 'Finalizado'}">Activo</td>
                                 <td>
-                                    <a href="#" onclick="return window.navegar ? (window.navegar('equipo'), false) : true;" class="action-btn">Inscribirse</a>
+                                    <form th:action="@{/tournaments/user/register}" method="POST">
+                                        <input type="hidden" name="tournamentId" th:value="${tournament.id}">
+                                        <select name="teamId" required>
+                                            <option value="">Seleccione equipo</option>
+                                            <option th:each="team : ${userTeams}" th:value="${team.id}" th:text="${team.name}"></option>
+                                        </select>
+                                        <button type="submit" class="action-btn">Inscribirse</button>
+                                    </form>
                                 </td>
                             </tr>
                         </tbody>

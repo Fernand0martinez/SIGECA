@@ -6,6 +6,8 @@ package cr.ac.una.SIGECA.domain;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -39,6 +41,28 @@ public class Tournament {
     private String tournamentState = "DRAFT"; // DRAFT, ACTIVE, FINISHED
     private String matchDay;                  // SABADO, DOMINGO, etc.
     private String matchTime;                 // 14:00, 16:30, etc.
+    
+    @Enumerated(EnumType.STRING)
+    private TournamentFormat formatType;
+    private int roundRobinLegs;
+    private boolean playoffEnabled;
+    private int playoffTeamsCount;
+    
+    @Enumerated(EnumType.STRING)
+    private ScheduleMode scheduleMode;
+    private int matchesPerWeek;
+    private String gameDays;
+    
+    private int pointsWin;
+    private int pointsDraw;
+    private int pointsLoss;
+    
+    private int yellowCardsForSuspension;
+    private int directRedSuspensionMatches;
+    private int accumulatedYellowSuspensionMatches;
+    
+    private int minPlayersPerTeam;
+    private int maxPlayersPerTeam;
 
     // Relacion muchos a muchos con Referee
     @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
@@ -167,5 +191,121 @@ public class Tournament {
 
     public void setMatchTime(String matchTime) {
         this.matchTime = matchTime;
+    }
+
+    public TournamentFormat getFormatType() {
+        return formatType;
+    }
+
+    public void setFormatType(TournamentFormat formatType) {
+        this.formatType = formatType;
+    }
+
+    public int getRoundRobinLegs() {
+        return roundRobinLegs;
+    }
+
+    public void setRoundRobinLegs(int roundRobinLegs) {
+        this.roundRobinLegs = roundRobinLegs;
+    }
+
+    public boolean isPlayoffEnabled() {
+        return playoffEnabled;
+    }
+
+    public void setPlayoffEnabled(boolean playoffEnabled) {
+        this.playoffEnabled = playoffEnabled;
+    }
+
+    public int getPlayoffTeamsCount() {
+        return playoffTeamsCount;
+    }
+
+    public void setPlayoffTeamsCount(int playoffTeamsCount) {
+        this.playoffTeamsCount = playoffTeamsCount;
+    }
+
+    public ScheduleMode getScheduleMode() {
+        return scheduleMode;
+    }
+
+    public void setScheduleMode(ScheduleMode scheduleMode) {
+        this.scheduleMode = scheduleMode;
+    }
+
+    public int getMatchesPerWeek() {
+        return matchesPerWeek;
+    }
+
+    public void setMatchesPerWeek(int matchesPerWeek) {
+        this.matchesPerWeek = matchesPerWeek;
+    }
+
+    public String getGameDays() {
+        return gameDays;
+    }
+
+    public void setGameDays(String gameDays) {
+        this.gameDays = gameDays;
+    }
+
+    public int getPointsWin() {
+        return pointsWin;
+    }
+
+    public void setPointsWin(int pointsWin) {
+        this.pointsWin = pointsWin;
+    }
+
+    public int getPointsDraw() {
+        return pointsDraw;
+    }
+
+    public void setPointsDraw(int pointsDraw) {
+        this.pointsDraw = pointsDraw;
+    }
+
+    public int getPointsLoss() {
+        return pointsLoss;
+    }
+
+    public void setPointsLoss(int pointsLoss) {
+        this.pointsLoss = pointsLoss;
+    }
+
+    public int getYellowCardsForSuspension() {
+        return yellowCardsForSuspension;
+    }
+
+    public void setYellowCardsForSuspension(int yellowCardsForSuspension) {
+        this.yellowCardsForSuspension = yellowCardsForSuspension;
+    }
+
+    public int getDirectRedSuspensionMatches() {
+        return directRedSuspensionMatches;
+    }
+
+    public void setDirectRedSuspensionMatches(int directRedSuspensionMatches) {
+        this.directRedSuspensionMatches = directRedSuspensionMatches;
+    }
+
+    public int getAccumulatedYellowSuspensionMatches() {
+        return accumulatedYellowSuspensionMatches;
+    }
+
+    public int getMinPlayersPerTeam() {
+        return minPlayersPerTeam;
+    }
+
+    public void setMinPlayersPerTeam(int minPlayersPerTeam) {
+        this.minPlayersPerTeam = minPlayersPerTeam;
+    }
+
+    public int getMaxPlayersPerTeam() {
+        return maxPlayersPerTeam;
+    }
+
+    public void setMaxPlayersPerTeam(int maxPlayersPerTeam) {
+        this.maxPlayersPerTeam = maxPlayersPerTeam;
     }
 }

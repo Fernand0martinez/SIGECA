@@ -3,58 +3,93 @@
     <head>
         <meta charset="UTF-8"/>
         <link rel="stylesheet" th:href="@{/css/styles.css}"/>
+        <link rel="stylesheet" th:href="@{/css/team-user.css}"/>
         <link rel="stylesheet" th:href="@{/css/back-button.css}"/>
     </head>
     <body>
-        <a class="back-top-btn" href="#" onclick="return window.dashboardBack ? window.dashboardBack('equipo') : false;">← Volver</a>
-        <form th:object="${team}"
-              th:action="@{/teams/user/save}"
-              class="team-form"
-              id="team-form">
-            <fieldset>
-                <legend>
-                    <span th:if="${team.id == null}">Nuevo Equipo</span>
-                    <span th:if="${team.id != null}">Editar Equipo</span>
-                </legend>
-
-                <div class="form-row">
-                    <label for="name">Nombre:</label>
-                    <input type="text"
-                           th:field="*{name}"
-                           id="name"
-                           required/>
+        <div class="team-user-shell" th:fragment="contenido">
+            <a class="back-top-btn" href="#" onclick="return window.dashboardBack ? window.dashboardBack('equipo') : false;">&larr; Volver</a>
+            <section class="team-user-card">
+                <div class="team-user-header">
+                    <h2 th:text="${team.id == null ? 'Registrar equipo' : 'Editar equipo'}">Registrar equipo</h2>
+                    <p>Asigna jugadores, define dorsales y selecciona el capitán del equipo.</p>
                 </div>
 
-                <div class="form-row">
-                    <label for="captain">Capitán:</label>
-                    <select th:field="*{captain.id}" id="captain">
-                        <option value="">-- Seleccionar capitán --</option> 
-                        <option th:each="p : ${players}"
-                                th:value="${p.id}"
-                                th:text="${p.name}"></option>
-                    </select>
-                </div>
+                <form th:object="${team}"
+                      th:action="@{/teams/user/save}"
+                      class="team-form"
+                      id="team-form">
+                    <fieldset>
+                        <div class="form-row">
+                            <label for="name">Nombre</label>
+                            <input type="text"
+                                   th:field="*{name}"
+                                   id="name"
+                                   required/>
+                        </div>
 
-                <input type="hidden" th:field="*{id}"/>
+                        <div th:if="${error}" class="error-message team-inline-error" th:text="${error}"></div>
 
-                <div class="form-row">
-                    <button th:if="${team.id == null}"
-                            type="submit"
-                            class="button button--success">
-                        Guardar
-                    </button>
-                    <button th:if="${team.id != null}"
-                            type="submit"
-                            class="button button--update">
-                        Actualizar
-                    </button>
-                    <button type="button"
-                            class="button button--neutral"
-                            onclick="cancelFormUser()">
-                        Cancelar
-                    </button>
-                </div>
-            </fieldset>
-        </form>
+                        <div class="form-row">
+                            <label>Plantilla</label>
+                            <div class="team-members-panel">
+                                <div th:each="p : ${players}" class="team-member-row">
+                                    <label class="team-member-check">
+                                        <input type="checkbox"
+                                               class="team-player-checkbox"
+                                               name="playerIds"
+                                               th:value="${p.id}"
+                                               th:checked="${selectedPlayerIds != null and #lists.contains(selectedPlayerIds, p.id)}"/>
+                                        <span th:text="${p.name + ' ' + p.lastName + ' - ' + p.position}">Jugador</span>
+                                    </label>
+                                    <select th:id="${'dorsal_' + p.id}"
+                                            th:name="${'dorsal_' + p.id}"
+                                            class="form-control">
+                                        <option value="">Dorsal</option>
+                                        <option th:each="n : ${#numbers.sequence(1, 99)}"
+                                                th:value="${n}"
+                                                th:text="${n}"
+                                                th:selected="${memberDorsals != null and memberDorsals[p.id] != null and memberDorsals[p.id] == n}">
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <label for="captainId">Capitán</label>
+                            <select id="captainId" name="captainId">
+                                <option value="">-- Seleccionar capitán --</option>
+                                <option th:each="p : ${players}"
+                                        th:value="${p.id}"
+                                        th:text="${p.name + ' ' + p.lastName}"
+                                        th:selected="${selectedCaptainId != null and selectedCaptainId == p.id}">
+                                </option>
+                            </select>
+                        </div>
+
+                        <input type="hidden" th:field="*{id}"/>
+
+                        <div class="form-row team-form-actions">
+                            <button th:if="${team.id == null}"
+                                    type="submit"
+                                    class="button button--success">
+                                Guardar
+                            </button>
+                            <button th:if="${team.id != null}"
+                                    type="submit"
+                                    class="button button--update">
+                                Actualizar
+                            </button>
+                            <button type="button"
+                                    class="button button--neutral"
+                                    onclick="cancelFormUser()">
+                                Cancelar
+                            </button>
+                        </div>
+                    </fieldset>
+                </form>
+            </section>
+        </div>
     </body>
 </html>

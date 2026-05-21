@@ -67,6 +67,25 @@ public class TournamentService implements CRUD<Tournament>{
             throw new IllegalStateException("Solo se pueden agregar equipos si el torneo está en borrador.");
         }
         cr.ac.una.SIGECA.domain.Team team = repoTeam.findById(teamId).orElseThrow(() -> new EntityNotFoundException("Equipo no encontrado con id " + teamId));
+        
+        // Validación: Conteo de jugadores
+        int numPlayers = team.getPlayers().size();
+        if (tournament.getMinPlayersPerTeam() > 0 && numPlayers < tournament.getMinPlayersPerTeam()) {
+            throw new IllegalArgumentException("El equipo " + team.getName() + " no tiene suficientes jugadores (mínimo " + tournament.getMinPlayersPerTeam() + ").");
+        }
+        if (tournament.getMaxPlayersPerTeam() > 0 && numPlayers > tournament.getMaxPlayersPerTeam()) {
+            throw new IllegalArgumentException("El equipo " + team.getName() + " supera el límite de jugadores permitido (máximo " + tournament.getMaxPlayersPerTeam() + ").");
+        }
+        
+        // Validación: Jugadores ya inscritos en otros equipos del torneo
+        for (cr.ac.una.SIGECA.domain.Player p : team.getPlayers()) {
+            for (cr.ac.una.SIGECA.domain.Team t : tournament.getTeams()) {
+                if (t.getPlayers().contains(p)) {
+                    throw new IllegalArgumentException("El jugador " + p.getName() + " ya está inscrito en otro equipo de este torneo.");
+                }
+            }
+        }
+        
         if (tournament.getTeams().contains(team)) {
             throw new IllegalArgumentException("El equipo ya está inscrito en este torneo.");
         }

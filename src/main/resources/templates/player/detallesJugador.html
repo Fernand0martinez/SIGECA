@@ -15,7 +15,7 @@
                        <th>Nombre</th>
                         <th>Edad</th>
                         <th>Género</th>
-                        <th>Numero Uniforme</th>
+                        <th>Dorsal</th>
                         <th>Posición </th>
                         <th>Goles</th>
                         <th>Asistencias</th>
@@ -26,7 +26,7 @@
                        <td th:text="${p.name?:'N/A'}" style="color: #155724"> </td>
                        <td th:text="${p.age ?: 'N/A'}+' años.'" style="color: darkorange"></td>
                         <td  th:text="${gender}" style="color: darkorange">
-                        <td th:text="'Uniforme #: '+${p.dorsal ?: 'N/A'}+'.'" style="color: deeppink"></td>
+                        <td th:text="${p.dorsal > 0 ? 'Uniforme #: ' + p.dorsal + '.' : 'Se asigna al agregarlo a un equipo.'}" style="color: deeppink"></td>
                         <td th:text="${position}" style="color: mediumpurple"></td>
                         <td th:text="${p.goal ?: 0} +' goles.'" style="color: teal"></td>
                         <td th:text="${p.assist ?: 0}+' asistencias.'" style="color: brown"></td>

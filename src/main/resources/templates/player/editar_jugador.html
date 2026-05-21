@@ -37,7 +37,7 @@
 
                         <div class="form-group">
                             <label for="mail">Correo</label>
-                            <input id="mail" type="email" class="form-control" name="mail" th:value="${p.mail}" required minlength="10" maxlength="45" placeholder="Correo">
+                            <input id="mail" type="email" class="form-control" name="mail" th:value="${p.mail}" minlength="10" maxlength="45" placeholder="Correo">
                         </div>
 
                         <div class="form-group">
@@ -52,11 +52,6 @@
                                 <option value="F" th:selected="${p.gender == 'F'}">Femenino</option>
                                 <option value="O" th:selected="${p.gender == 'O'}">Otro</option>
                             </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="dorsal">Dorsal</label>
-                            <input id="dorsal" type="number" class="form-control" name="dorsal" th:value="${p.dorsal}" min="0" max="999" required>
                         </div>
 
                         <div class="form-group">

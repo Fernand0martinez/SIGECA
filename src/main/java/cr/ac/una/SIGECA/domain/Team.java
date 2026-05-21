@@ -1,9 +1,21 @@
 package cr.ac.una.SIGECA.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotBlank;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "tb_team")
@@ -11,27 +23,16 @@ public class Team {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_team")
+    @jakarta.persistence.Column(name = "id_team")
     private Integer id;
 
     @NotBlank(message = "Team name is mandatory")
-    @Column(name = "name", nullable = false)
+    @jakarta.persistence.Column(name = "name", nullable = false)
     private String name;
 
-    // Un equipo tiene un capitán (uno de sus jugadores)
-    @ManyToOne
-    @JoinColumn(name = "captain_id")
-    private Player captain;
+    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TeamMember> members = new ArrayList<>();
 
-    // Un equipo tiene muchos jugadores
-    @OneToMany(
-            mappedBy = "team",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
-    )
-    private List<Player> players = new ArrayList<>();
-
-    // Un equipo puede inscribirse en muchos torneos
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "tournament_team",
@@ -63,20 +64,12 @@ public class Team {
         this.name = name;
     }
 
-    public Player getCaptain() {
-        return captain;
+    public List<TeamMember> getMembers() {
+        return members;
     }
 
-    public void setCaptain(Player captain) {
-        this.captain = captain;
-    }
-
-    public List<Player> getPlayers() {
-        return players;
-    }
-
-    public void setPlayers(List<Player> players) {
-        this.players = players;
+    public void setMembers(List<TeamMember> members) {
+        this.members = members;
     }
 
     public List<Tournament> getTournaments() {
@@ -87,32 +80,45 @@ public class Team {
         this.tournaments = tournaments;
     }
 
-    // metodos de conveniencia
-    public void addPlayer(Player p) {
-        players.add(p);
-        p.setTeam(this);
+    @Transient
+    public List<Player> getPlayers() {
+        return members.stream()
+                .map(TeamMember::getPlayer)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
-    public void removePlayer(Player p) {
-        players.remove(p);
-        p.setTeam(null);
+    @Transient
+    public Player getCaptain() {
+        return members.stream()
+                .filter(TeamMember::isCaptain)
+                .map(TeamMember::getPlayer)
+                .findFirst()
+                .orElse(null);
     }
 
-    public void addTournament(Tournament t) {
-        tournaments.add(t);
-        t.getTeams().add(this);
+    public void addMember(TeamMember member) {
+        members.add(member);
+        member.setTeam(this);
     }
 
-    public void removeTournament(Tournament t) {
-        tournaments.remove(t);
-        t.getTeams().remove(this);
+    public void removeMember(TeamMember member) {
+        members.remove(member);
+        member.setTeam(null);
+    }
+
+    public void addTournament(Tournament tournament) {
+        tournaments.add(tournament);
+        tournament.getTeams().add(this);
+    }
+
+    public void removeTournament(Tournament tournament) {
+        tournaments.remove(tournament);
+        tournament.getTeams().remove(this);
     }
 
     @Override
     public String toString() {
-        return "Team{"
-                + "id=" + id
-                + ", name='" + name + '\''
-                + '}';
+        return "Team{" + "id=" + id + ", name='" + name + '\'' + '}';
     }
 }

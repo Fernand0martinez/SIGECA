@@ -2,6 +2,35 @@ function getTournamentContent() {
     return document.getElementById("content") || document.body;
 }
 
+function tournamentResponseHasError(html) {
+    return typeof html === "string" && html.includes("alert-danger");
+}
+
+function switchTournamentTab(tabId, clickedButton) {
+    const contentRoot = getTournamentContent();
+    const tabContents = contentRoot.querySelectorAll(".tab-content");
+    const tabButtons = contentRoot.querySelectorAll(".tab-btn");
+
+    tabContents.forEach((tabContent) => tabContent.classList.remove("active"));
+    tabButtons.forEach((tabButton) => tabButton.classList.remove("active"));
+
+    const targetTab = contentRoot.querySelector(`#${tabId}`);
+    if (targetTab) {
+        targetTab.classList.add("active");
+    }
+    if (clickedButton) {
+        clickedButton.classList.add("active");
+    }
+}
+
+function filterTournamentRound(roundClass) {
+    const contentRoot = getTournamentContent();
+    const cards = contentRoot.querySelectorAll(".match-card");
+    cards.forEach((card) => {
+        card.style.display = roundClass === "all" || card.classList.contains(roundClass) ? "block" : "none";
+    });
+}
+
 function loadTournamentView(url) {
     const xhttp = new XMLHttpRequest();
     xhttp.open("GET", url, true);
@@ -18,6 +47,13 @@ function loadTournamentView(url) {
 }
 
 document.addEventListener("click", function (e) {
+    const tabButton = e.target.closest(".tab-btn[data-tab-target]");
+    if (tabButton) {
+        e.preventDefault();
+        switchTournamentTab(tabButton.dataset.tabTarget, tabButton);
+        return;
+    }
+
     const addLink = e.target.closest(".add-tournament-link");
     if (addLink) {
         e.preventDefault();
@@ -69,15 +105,18 @@ document.addEventListener("click", function (e) {
                 }
                 if (this.status === 200) {
                     getTournamentContent().innerHTML = this.responseText;
-                    Swal.fire("Eliminado", "El torneo ha sido eliminado.", "success");
+                    if (tournamentResponseHasError(this.responseText)) {
+                        Swal.fire("Error", "No se pudo eliminar el torneo.", "error");
+                    } else {
+                        Swal.fire("Eliminado", "El torneo ha sido eliminado.", "success");
+                    }
                 }
             };
             xhttp.send(new FormData(form));
         });
         return;
     }
-    
-    // Botón para remover equipo en details
+
     const removeTeamButton = e.target.closest(".remove-team-btn");
     if (removeTeamButton) {
         e.preventDefault();
@@ -86,15 +125,29 @@ document.addEventListener("click", function (e) {
         xhttp.open("POST", form.action, true);
         xhttp.setRequestHeader("X-Requested-With", "XMLHttpRequest");
         xhttp.onreadystatechange = function () {
-            if (this.readyState !== 4) return;
+            if (this.readyState !== 4) {
+                return;
+            }
             if (this.status === 200) {
                 getTournamentContent().innerHTML = this.responseText;
-                Swal.fire("Removido", "El equipo ha sido eliminado del torneo.", "success");
+                if (tournamentResponseHasError(this.responseText)) {
+                    Swal.fire("Error", "No se pudo eliminar el equipo del torneo.", "error");
+                } else {
+                    Swal.fire("Removido", "El equipo ha sido eliminado del torneo.", "success");
+                }
             }
         };
         xhttp.send(new FormData(form));
         return;
     }
+});
+
+document.addEventListener("change", function (e) {
+    const roundSelect = e.target.closest("#roundSelect");
+    if (!roundSelect) {
+        return;
+    }
+    filterTournamentRound(roundSelect.value);
 });
 
 document.addEventListener("submit", function (e) {
@@ -111,7 +164,11 @@ document.addEventListener("submit", function (e) {
             if (this.status === 200) {
                 getTournamentContent().innerHTML = this.responseText;
                 if (form.classList.contains("tournament-details-form")) {
-                    Swal.fire("Éxito", "Equipo inscrito en el torneo.", "success");
+                    if (tournamentResponseHasError(this.responseText)) {
+                        Swal.fire("Error", "No se pudo inscribir el equipo en el torneo.", "error");
+                    } else {
+                        Swal.fire("Éxito", "Equipo inscrito en el torneo.", "success");
+                    }
                 }
             } else {
                 Swal.fire("Error", "No se pudo realizar la acción.", "error");
@@ -131,24 +188,32 @@ document.addEventListener("submit", function (e) {
             showCancelButton: true,
             confirmButtonColor: "#28a745",
             cancelButtonColor: "#d33",
-            confirmButtonText: "¡Sí, lanzar campeonato!",
+            confirmButtonText: "Sí, lanzar campeonato",
             cancelButtonText: "Cancelar"
         }).then((result) => {
-            if (result.isConfirmed) {
-                const xhttp = new XMLHttpRequest();
-                xhttp.open("POST", launchForm.action, true);
-                xhttp.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-                xhttp.onreadystatechange = function () {
-                    if (this.readyState !== 4) return;
-                    if (this.status === 200) {
-                        getTournamentContent().innerHTML = this.responseText;
-                        Swal.fire("¡Lanzado!", "El torneo está en curso y los partidos se han calendarizado.", "success");
-                    } else {
-                        Swal.fire("Error", "No se pudo lanzar el torneo.", "error");
-                    }
-                };
-                xhttp.send(new FormData(launchForm));
+            if (!result.isConfirmed) {
+                return;
             }
+
+            const xhttp = new XMLHttpRequest();
+            xhttp.open("POST", launchForm.action, true);
+            xhttp.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+            xhttp.onreadystatechange = function () {
+                if (this.readyState !== 4) {
+                    return;
+                }
+                if (this.status === 200) {
+                    getTournamentContent().innerHTML = this.responseText;
+                    if (tournamentResponseHasError(this.responseText)) {
+                        Swal.fire("Error", "No se pudo lanzar el torneo.", "error");
+                    } else {
+                        Swal.fire("Lanzado", "El torneo está en curso y los partidos se han calendarizado.", "success");
+                    }
+                } else {
+                    Swal.fire("Error", "No se pudo lanzar el torneo.", "error");
+                }
+            };
+            xhttp.send(new FormData(launchForm));
         });
     }
 });

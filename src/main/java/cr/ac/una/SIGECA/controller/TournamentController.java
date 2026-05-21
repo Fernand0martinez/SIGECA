@@ -55,6 +55,9 @@ public class TournamentController {
     public String inscriptionTournament(Model model, HttpServletRequest request) {
         List<Tournament> tournaments = tournamentService.getAll();
         model.addAttribute("tournaments", tournaments);
+        // Asumiendo que teamService tiene un método para obtener los equipos del usuario actual
+        model.addAttribute("userTeams", teamService.listAllTeams());
+        
         if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
             return "tournament/registration_team :: contenido";
         }
@@ -82,6 +85,8 @@ public class TournamentController {
             @RequestParam(value = "refereeIds", required = false) List<Integer> refereeIds,
             @RequestParam(value = "matchDay", required = false) String matchDay,
             @RequestParam(value = "matchTime", required = false) String matchTime,
+            @RequestParam(value = "minPlayersPerTeam") int minPlayersPerTeam,
+            @RequestParam(value = "maxPlayersPerTeam") int maxPlayersPerTeam,
             HttpServletRequest request,
             Model model,
             RedirectAttributes redirectAttributes) {
@@ -108,6 +113,8 @@ public class TournamentController {
         tournament.setTournamentState("DRAFT");
         tournament.setMatchDay(matchDay != null ? matchDay : "SABADO");
         tournament.setMatchTime(matchTime != null ? matchTime : "15:00");
+        tournament.setMinPlayersPerTeam(minPlayersPerTeam);
+        tournament.setMaxPlayersPerTeam(maxPlayersPerTeam);
 
         if (sponsorId != null) {
             Sponsorship sponsor = sponsorshipService.getById(sponsorId);
@@ -159,9 +166,8 @@ public class TournamentController {
             @RequestParam("name") String name,
             @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            @RequestParam(value = "sponsorId", required = false) Integer sponsorId,
-            @RequestParam(value = "matchDay", required = false) String matchDay,
-            @RequestParam(value = "matchTime", required = false) String matchTime,
+            @RequestParam("minPlayersPerTeam") int minPlayersPerTeam,
+            @RequestParam("maxPlayersPerTeam") int maxPlayersPerTeam,
             RedirectAttributes redirectAttributes) {
 
         Tournament tournament = tournamentService.getById(id);
@@ -174,27 +180,23 @@ public class TournamentController {
             redirectAttributes.addFlashAttribute("error", "La fecha de cierre no puede ser anterior a la fecha de inicio");
             return "redirect:/tournaments/admin/edit?id=" + id;
         }
-
-        boolean status = LocalDate.now().isBefore(endDate) && LocalDate.now().isAfter(startDate);
+        
+        // Validar rangos de jugadores
+        if (minPlayersPerTeam > maxPlayersPerTeam) {
+            redirectAttributes.addFlashAttribute("error", "El mínimo de jugadores no puede ser mayor al máximo.");
+            return "redirect:/tournaments/admin/edit?id=" + id;
+        }
 
         tournament.setName(name);
         tournament.setStartDate(startDate);
         tournament.setEndDate(endDate);
-        tournament.setStatus(status);
-        if (matchDay != null) tournament.setMatchDay(matchDay);
-        if (matchTime != null) tournament.setMatchTime(matchTime);
-
-        if (sponsorId != null) {
-            Sponsorship sponsor = sponsorshipService.getById(sponsorId);
-            tournament.setSponsor(sponsor);
-        } else {
-            tournament.setSponsor(null);
-        }
+        tournament.setMinPlayersPerTeam(minPlayersPerTeam);
+        tournament.setMaxPlayersPerTeam(maxPlayersPerTeam);
 
         tournamentService.save(tournament);
 
         redirectAttributes.addFlashAttribute("success", "Torneo actualizado exitosamente");
-        return "administrador";
+        return "redirect:/tournaments/admin/list";
     }
 
     @GetMapping("/admin/details")
@@ -215,6 +217,30 @@ public class TournamentController {
             return "tournament/details_tournament :: contenido";
         }
         return "tournament/details_tournament";
+    }
+
+    @PostMapping("/user/register")
+    public String registerTeamToTournament(
+            @RequestParam("tournamentId") int tournamentId,
+            @RequestParam("teamId") int teamId,
+            HttpServletRequest request,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+        try {
+            tournamentService.addTeamToTournament(tournamentId, teamId);
+            if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
+                model.addAttribute("success", "Equipo inscrito exitosamente en el torneo.");
+                return inscriptionTournament(model, request);
+            }
+            redirectAttributes.addFlashAttribute("success", "Equipo inscrito exitosamente en el torneo.");
+        } catch (Exception e) {
+            if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
+                model.addAttribute("error", e.getMessage());
+                return inscriptionTournament(model, request);
+            }
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/tournaments/user/registration";
     }
 
     @PostMapping("/admin/addTeam")

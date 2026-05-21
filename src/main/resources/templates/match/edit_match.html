@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Gestionar Partido</title>
+        <link rel="stylesheet" th:href="@{/css/tournament.css}">
+        <style>.event-row { display: flex; gap: 10px; margin-bottom: 5px; }</style>
+    </head>
+    <body>
+        <div class="tournament-container">
+            <h2>Gestionar Partido: <span th:text="${match.homeTeam.name + ' vs ' + match.awayTeam.name}"></span></h2>
+            
+            <form th:action="@{/match/admin/update}" method="POST" class="tournament-form">
+                <input type="hidden" name="id" th:value="${match.id}">
+                
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label>Goles Local</label>
+                        <input type="number" class="form-control" name="homeGoals" th:value="${match.homeGoals}">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label>Goles Visita</label>
+                        <input type="number" class="form-control" name="awayGoals" th:value="${match.awayGoals}">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label>Árbitro</label>
+                        <select class="form-control" name="refereeId">
+                            <option th:each="ref : ${referees}" th:value="${ref.id}" th:text="${ref.name}" th:selected="${match.referee != null and match.referee.id == ref.id}"></option>
+                        </select>
+                    </div>
+                </div>
+
+                <h3>Incidencias</h3>
+                <div id="eventsContainer"></div>
+                <button type="button" class="btn btn-secondary" onclick="addEvent()">+ Agregar Incidencia</button>
+                
+                <hr>
+                <button type="submit" class="btn btn-primary">Guardar Resultados e Incidencias</button>
+            </form>
+        </div>
+
+        <script>
+            let eventCount = 0;
+            function addEvent() {
+                const container = document.getElementById('eventsContainer');
+                const html = `
+                    <div class="event-row">
+                        <input type="number" name="events[${eventCount}].minute" placeholder="Minuto" required>
+                        <select name="events[${eventCount}].eventType">
+                            <option value="GOAL">Gol</option>
+                            <option value="YELLOW_CARD">Tarjeta Amarilla</option>
+                            <option value="RED_CARD">Tarjeta Roja</option>
+                            <option value="ASSIST">Asistencia</option>
+                        </select>
+                        <input type="number" name="events[${eventCount}].player.id" placeholder="ID Jugador" required>
+                    </div>`;
+                container.insertAdjacentHTML('beforeend', html);
+                eventCount++;
+            }
+        </script>
+    </body>
+</html>

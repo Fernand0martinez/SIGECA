@@ -56,6 +56,8 @@ document.addEventListener("DOMContentLoaded", function () {
         },
         torneo: async () => {
             await cargarContenido("/tournaments/admin/list", "Cargando torneos...");
+            inyectarCSS("/css/tournament.css");
+            inyectarCSS("/css/back-button.css");
             await inyectarScript("/tournamentAdmin.js");
         },
         reservaciones: async () => {

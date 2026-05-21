@@ -23,6 +23,7 @@ function attachFormListenerUser() {
     if (!form)
         return;
     form.addEventListener('submit', handleFormSubmitUser);
+    bindTeamMemberInputs(form);
 }
 
 function handleFormSubmitUser(e) {
@@ -30,6 +31,13 @@ function handleFormSubmitUser(e) {
     const form = e.target;
     const formData = new FormData(form);
     ajaxPost(form.action, formData, html => {
+        if (html.includes('id="team-form"')) {
+            document.getElementById('team-form-container').innerHTML = html;
+            attachFormListenerUser();
+            showToast('info', 'Revisa los datos del equipo');
+            return;
+        }
+
         document.getElementById('team-form-container').innerHTML = '';
         document.getElementById('team-table-container').innerHTML = html;
         initDeleteHandlerUser();
@@ -111,4 +119,47 @@ function showToast(type, msg) {
 }
 function cancelFormUser() {
     document.getElementById('team-form-container').innerHTML = '';
+}
+
+function bindTeamMemberInputs(scope) {
+    const captainSelect = scope.querySelector('#captainId');
+
+    function syncMemberControls() {
+        const selectedPlayerIds = new Set(
+                [...scope.querySelectorAll('.team-player-checkbox:checked')]
+                .map(checkbox => String(checkbox.value))
+                );
+
+        scope.querySelectorAll('.team-player-checkbox').forEach(checkbox => {
+            const playerId = String(checkbox.value);
+            const dorsalSelect = scope.querySelector('#dorsal_' + playerId);
+
+            if (dorsalSelect) {
+                dorsalSelect.disabled = !checkbox.checked;
+                if (!checkbox.checked) {
+                    dorsalSelect.value = '';
+                }
+            }
+        });
+
+        if (captainSelect) {
+            [...captainSelect.options].forEach(option => {
+                if (!option.value) {
+                    option.disabled = false;
+                    return;
+                }
+                option.disabled = !selectedPlayerIds.has(option.value);
+            });
+
+            if (captainSelect.value && !selectedPlayerIds.has(captainSelect.value)) {
+                captainSelect.value = '';
+            }
+        }
+    }
+
+    scope.querySelectorAll('.team-player-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', syncMemberControls);
+    });
+
+    syncMemberControls();
 }

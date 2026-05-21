@@ -1,8 +1,4 @@
 <!DOCTYPE html>
-<!--
-Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
-Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this template
--->
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
     <head>
         <meta charset="UTF-8">
@@ -22,22 +18,13 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
                             <tr>
                                 <th>Nombre</th>
                                 <th>Fecha de Inicio</th>
-            <h2>Lista de Torneos</h2>
-
-            <div class="main-content">
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Nombre</th>
-                                <th>Fecha de Inicio</th>
                                 <th>Fecha de Cierre</th>
                                 <th>Estado</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
-                             <tr th:each="tournament : ${tournaments}">
+                            <tr th:each="tournament : ${tournaments}">
                                 <td th:text="${tournament.name}">Nombre Torneo</td>
                                 <td th:text="${tournament.startDate}">01/01/2025</td>
                                 <td th:text="${tournament.endDate}">10/01/2025</td>
@@ -54,37 +41,14 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
                                     </form>
                                 </td>
                             </tr>
-                            <style>
-                                .status-badge {
-                                    padding: 4px 10px;
-                                    border-radius: 20px;
-                                    font-size: 0.8em;
-                                    font-weight: bold;
-                                    display: inline-block;
-                                }
-                                .status-draft {
-                                    background-color: #fff3cd;
-                                    color: #856404;
-                                    border: 1px solid #ffeeba;
-                                }
-                                .status-active {
-                                    background-color: #d4edda;
-                                    color: #155724;
-                                    border: 1px solid #c3e6cb;
-                                }
-                                .status-finished {
-                                    background-color: #e2e3e5;
-                                    color: #383d41;
-                                    border: 1px solid #d6d8db;
-                                }
-                            </style>
                         </tbody>
                     </table>
                 </div>
+
                 <div class="add-button-container">
                     <a th:href="@{/tournaments/admin/form}" class="add-btn add-tournament-link">Agregar Torneo</a>
+                </div>
             </div>
         </div>
     </body>
 </html>
-

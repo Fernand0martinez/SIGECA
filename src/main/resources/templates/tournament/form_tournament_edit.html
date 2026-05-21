@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Editar Torneo | SIGECA</title>
+        <link rel="stylesheet" th:href="@{/css/tournament.css}">
+        <link rel="stylesheet" th:href="@{/css/back-button.css}">
+    </head>
+    <body>
+        <a class="back-top-btn" href="/tournaments/admin/list">← Volver</a>
+        <div class="tournament-container">
+            <div class="form-container">
+                <h2>Editar Torneo</h2>
+
+                <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
+                <div th:if="${success}" class="alert alert-success" role="alert" th:text="${success}"></div>
+
+                <form th:action="@{/tournaments/admin/update}" method="POST" class="tournament-form">
+                    <input type="hidden" name="id" th:value="${tournament.id}">
+
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Nombre del Torneo</label>
+                        <input type="text" class="form-control" id="name" name="name" th:value="${tournament.name}" required>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="startDate" class="form-label">Fecha de Inicio</label>
+                            <input type="date" class="form-control" id="startDate" name="startDate" th:value="${tournament.startDate}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="endDate" class="form-label">Fecha de Finalización</label>
+                            <input type="date" class="form-control" id="endDate" name="endDate" th:value="${tournament.endDate}" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="minPlayersPerTeam" class="form-label">Jugadores Mínimos</label>
+                            <input type="number" class="form-control" id="minPlayersPerTeam" name="minPlayersPerTeam" th:value="${tournament.minPlayersPerTeam}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="maxPlayersPerTeam" class="form-label">Jugadores Máximos</label>
+                            <input type="number" class="form-control" id="maxPlayersPerTeam" name="maxPlayersPerTeam" th:value="${tournament.maxPlayersPerTeam}" required>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="submit" class="btn btn-primary">Actualizar Torneo</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>
