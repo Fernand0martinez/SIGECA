@@ -4,14 +4,18 @@ import cr.ac.una.SIGECA.domain.Referee;
 import cr.ac.una.SIGECA.domain.Sponsorship;
 import cr.ac.una.SIGECA.domain.Team;
 import cr.ac.una.SIGECA.domain.Tournament;
+import cr.ac.una.SIGECA.domain.User;
 import cr.ac.una.SIGECA.logic.LogicReferee;
 import cr.ac.una.SIGECA.service.MatchService;
+import cr.ac.una.SIGECA.service.MatchManagementService;
 import cr.ac.una.SIGECA.service.RefereeService;
 import cr.ac.una.SIGECA.service.SponsorshipService;
 import cr.ac.una.SIGECA.service.TeamService;
 import cr.ac.una.SIGECA.service.TournamentService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -42,6 +46,9 @@ public class TournamentController {
     @Autowired
     private MatchService matchService;
 
+    @Autowired
+    private MatchManagementService matchManagementService;
+
     @GetMapping("/admin/list")
     public String listTournaments(Model model, HttpServletRequest request) {
         List<Tournament> tournaments = tournamentService.getAll();
@@ -53,10 +60,10 @@ public class TournamentController {
     }
 
     @GetMapping("/user/registration")
-    public String inscriptionTournament(Model model, HttpServletRequest request) {
+    public String inscriptionTournament(Model model, HttpServletRequest request, HttpSession session) {
         List<Tournament> tournaments = tournamentService.getAll();
         model.addAttribute("tournaments", tournaments);
-        model.addAttribute("userTeams", teamService.listAllTeams());
+        model.addAttribute("userTeams", teamService.listTeamsByOwner(getLoggedUser(session)));
 
         if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
             return "tournament/registration_team :: contenido";
@@ -231,19 +238,24 @@ public class TournamentController {
             @RequestParam("tournamentId") int tournamentId,
             @RequestParam("teamId") int teamId,
             HttpServletRequest request,
+            HttpSession session,
             Model model,
             RedirectAttributes redirectAttributes) {
         try {
+            Team team = teamService.findById(teamId);
+            if (!isOwner(team, getLoggedUser(session))) {
+                throw new IllegalArgumentException("No puedes inscribir un equipo de otro usuario.");
+            }
             tournamentService.addTeamToTournament(tournamentId, teamId);
             if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
                 model.addAttribute("success", "Equipo inscrito exitosamente en el torneo.");
-                return inscriptionTournament(model, request);
+                return inscriptionTournament(model, request, session);
             }
             redirectAttributes.addFlashAttribute("success", "Equipo inscrito exitosamente en el torneo.");
         } catch (Exception e) {
             if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
                 model.addAttribute("error", e.getMessage());
-                return inscriptionTournament(model, request);
+                return inscriptionTournament(model, request, session);
             }
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
@@ -294,6 +306,22 @@ public class TournamentController {
         return tournamentDetails(tournamentId, model, request);
     }
 
+    @PostMapping("/admin/updateMatchDate")
+    public String updateMatchDate(
+            @RequestParam("tournamentId") int tournamentId,
+            @RequestParam("matchId") int matchId,
+            @RequestParam("matchDate") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") LocalDateTime matchDate,
+            HttpServletRequest request,
+            Model model) {
+        try {
+            matchManagementService.updateMatchDate(matchId, matchDate);
+            model.addAttribute("success", "Fecha del partido actualizada exitosamente.");
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
+        }
+        return tournamentDetails(tournamentId, model, request);
+    }
+
     @GetMapping("/admin")
     public String mostrarVistaAdministrador() {
         return "administrador";
@@ -307,5 +335,17 @@ public class TournamentController {
         model.addAttribute("availableTeams", availableTeams);
         model.addAttribute("matches", matchService.getMatchesByTournament(tournament.getId()));
         model.addAttribute("managementEnabled", managementEnabled);
+    }
+
+    private User getLoggedUser(HttpSession session) {
+        Object user = session.getAttribute("usuarioLogueado");
+        return user instanceof User loggedUser ? loggedUser : null;
+    }
+
+    private boolean isOwner(Team team, User user) {
+        return team != null
+                && team.getOwner() != null
+                && user != null
+                && team.getOwner().getId() == user.getId();
     }
 }

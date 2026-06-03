@@ -24,10 +24,16 @@ function switchTournamentTab(tabId, clickedButton) {
 }
 
 function filterTournamentRound(roundClass) {
+    applyFixtureFilters(roundClass, getTournamentContent().querySelector("#teamMatchSelect")?.value || "all");
+}
+
+function applyFixtureFilters(roundClass, teamId) {
     const contentRoot = getTournamentContent();
     const cards = contentRoot.querySelectorAll(".match-card");
     cards.forEach((card) => {
-        card.style.display = roundClass === "all" || card.classList.contains(roundClass) ? "block" : "none";
+        const matchesRound = roundClass === "all" || card.classList.contains(roundClass);
+        const matchesTeam = teamId === "all" || card.dataset.homeTeamId === teamId || card.dataset.awayTeamId === teamId;
+        card.style.display = matchesRound && matchesTeam ? "block" : "none";
     });
 }
 
@@ -160,14 +166,19 @@ document.addEventListener("click", function (e) {
 
 document.addEventListener("change", function (e) {
     const roundSelect = e.target.closest("#roundSelect");
-    if (!roundSelect) {
+    if (roundSelect) {
+        applyFixtureFilters(roundSelect.value, getTournamentContent().querySelector("#teamMatchSelect")?.value || "all");
         return;
     }
-    filterTournamentRound(roundSelect.value);
+
+    const teamMatchSelect = e.target.closest("#teamMatchSelect");
+    if (teamMatchSelect) {
+        applyFixtureFilters(getTournamentContent().querySelector("#roundSelect")?.value || "all", teamMatchSelect.value);
+    }
 });
 
 document.addEventListener("submit", function (e) {
-    const form = e.target.closest(".tournament-form, .tournament-details-form");
+    const form = e.target.closest(".tournament-form, .tournament-details-form, .match-date-form");
     if (form) {
         e.preventDefault();
         const xhttp = new XMLHttpRequest();

@@ -927,6 +927,13 @@ a[href*="details"]:hover {
     align-items: center;
     margin-bottom: 20px;
     gap: 10px;
+    flex-wrap: wrap;
+}
+
+.fixture-filter-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .select-round {
@@ -965,6 +972,26 @@ a[href*="details"]:hover {
     border-top: 1px solid #f1f5f9;
     padding-top: 10px;
     margin-top: 12px;
+    font-size: 0.85rem;
+}
+
+.match-date-form {
+    display: grid;
+    grid-template-columns: auto minmax(180px, 240px) auto;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #f1f5f9;
+}
+
+.match-date-form .form-control {
+    margin-top: 0;
+}
+
+.btn-match-date {
+    margin: 0;
+    padding: 8px 12px;
     font-size: 0.85rem;
 }
 
@@ -1077,6 +1104,20 @@ a[href*="details"]:hover {
     .players-detail-list li {
         flex-direction: column;
         align-items: stretch;
+    }
+
+    .rounds-navigation,
+    .fixture-filter-control {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .select-round {
+        width: 100%;
+    }
+
+    .match-date-form {
+        grid-template-columns: 1fr;
     }
 
     .match-teams-display {

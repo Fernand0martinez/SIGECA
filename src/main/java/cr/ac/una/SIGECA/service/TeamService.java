@@ -4,6 +4,7 @@ import cr.ac.una.SIGECA.JPA.PlayerRepository;
 import cr.ac.una.SIGECA.domain.Player;
 import cr.ac.una.SIGECA.domain.Team;
 import cr.ac.una.SIGECA.domain.TeamMember;
+import cr.ac.una.SIGECA.domain.User;
 import cr.ac.una.SIGECA.repository.TeamMemberRepository;
 import cr.ac.una.SIGECA.repository.TeamRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -33,6 +34,13 @@ public class TeamService {
         return teamRepository.findAll();
     }
 
+    public List<Team> listTeamsByOwner(User owner) {
+        if (owner == null) {
+            return List.of();
+        }
+        return teamRepository.findByOwnerId(owner.getId());
+    }
+
     public Team findById(int id) {
         return teamRepository.findById(id).orElse(null);
     }
@@ -46,6 +54,11 @@ public class TeamService {
 
     @Transactional
     public Team saveTeamWithMembers(Team team, List<Integer> playerIds, Integer captainId, Map<Integer, Integer> dorsalByPlayer) {
+        return saveTeamWithMembers(team, playerIds, captainId, dorsalByPlayer, null);
+    }
+
+    @Transactional
+    public Team saveTeamWithMembers(Team team, List<Integer> playerIds, Integer captainId, Map<Integer, Integer> dorsalByPlayer, User owner) {
         if (team.getName() == null || team.getName().isBlank()) {
             throw new IllegalArgumentException("Team name is required.");
         }
@@ -55,9 +68,18 @@ public class TeamService {
                 : new Team();
 
         managedTeam.setName(team.getName().trim());
+        if (owner != null) {
+            managedTeam.setOwner(owner);
+        }
 
         List<TeamMember> currentMembers = new ArrayList<>(managedTeam.getMembers());
         for (TeamMember currentMember : currentMembers) {
+            Player currentPlayer = currentMember.getPlayer();
+            if (currentPlayer != null
+                    && currentPlayer.getTeam() != null
+                    && Objects.equals(currentPlayer.getTeam().getId(), managedTeam.getId())) {
+                currentPlayer.setTeam(null);
+            }
             managedTeam.removeMember(currentMember);
         }
 
@@ -89,6 +111,7 @@ public class TeamService {
             member.setDorsal(dorsal);
             member.setCaptain(Objects.equals(player.getId(), captainId));
             managedTeam.addMember(member);
+            player.setTeam(managedTeam);
         }
 
         if (captainId != null && managedTeam.getCaptain() == null) {
@@ -98,8 +121,20 @@ public class TeamService {
         return teamRepository.save(managedTeam);
     }
 
+    @Transactional
     public void deleteTeam(int id) {
-        teamRepository.deleteById(id);
+        Team team = teamRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Team not found with id " + id));
+        for (TeamMember member : new ArrayList<>(team.getMembers())) {
+            Player player = member.getPlayer();
+            if (player != null
+                    && player.getTeam() != null
+                    && Objects.equals(player.getTeam().getId(), team.getId())) {
+                player.setTeam(null);
+            }
+            team.removeMember(member);
+        }
+        teamRepository.delete(team);
     }
 
     public List<Team> filterTeams(String query) {
@@ -107,6 +142,16 @@ public class TeamService {
             return listAllTeams();
         }
         return teamRepository.findByNameContaining(query);
+    }
+
+    public List<Team> filterTeamsByOwner(String query, User owner) {
+        if (owner == null) {
+            return List.of();
+        }
+        if (query == null || query.isBlank()) {
+            return listTeamsByOwner(owner);
+        }
+        return teamRepository.findByOwnerIdAndNameContaining(owner.getId(), query);
     }
 
     public List<Team> findByTournament(int tournamentId) {

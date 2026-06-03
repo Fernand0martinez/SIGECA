@@ -3,11 +3,11 @@ package cr.ac.una.SIGECA.service;
 import cr.ac.una.SIGECA.domain.*;
 import cr.ac.una.SIGECA.repository.MatchEventRepository;
 import cr.ac.una.SIGECA.repository.MatchRepository;
-import cr.ac.una.SIGECA.repository.SuspensionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -55,6 +55,14 @@ public class MatchManagementService {
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new IllegalArgumentException("Partido no encontrado."));
         match.setReferee(referee);
+        matchRepository.save(match);
+    }
+
+    @Transactional
+    public void updateMatchDate(int matchId, LocalDateTime matchDate) {
+        Match match = matchRepository.findById(matchId)
+                .orElseThrow(() -> new IllegalArgumentException("Partido no encontrado."));
+        match.setMatchDate(matchDate);
         matchRepository.save(match);
     }
 }

@@ -144,17 +144,30 @@
 
                         <div th:if="${tournament.tournamentState == 'ACTIVE' or tournament.tournamentState == 'FINISHED'}" class="fixture-active-area">
                             <div class="rounds-navigation">
-                                <label for="roundSelect">Filtrar por Jornada:</label>
-                                <select id="roundSelect" class="form-select select-round">
-                                    <option value="all">-- Mostrar todas las jornadas --</option>
-                                    <option th:each="r : ${#numbers.sequence(1, (tournament.teams.size() % 2 == 0 ? tournament.teams.size() - 1 : tournament.teams.size()))}"
-                                            th:value="${'jornada-' + r}"
-                                            th:text="${'Jornada ' + r}"></option>
-                                </select>
+                                <div class="fixture-filter-control">
+                                    <label for="roundSelect">Filtrar por Jornada:</label>
+                                    <select id="roundSelect" class="form-select select-round">
+                                        <option value="all">-- Mostrar todas las jornadas --</option>
+                                        <option th:each="r : ${#numbers.sequence(1, (tournament.teams.size() % 2 == 0 ? tournament.teams.size() - 1 : tournament.teams.size()))}"
+                                                th:value="${'jornada-' + r}"
+                                                th:text="${'Jornada ' + r}"></option>
+                                    </select>
+                                </div>
+                                <div class="fixture-filter-control">
+                                    <label for="teamMatchSelect">Filtrar por Equipo:</label>
+                                    <select id="teamMatchSelect" class="form-select select-round">
+                                        <option value="all">-- Mostrar todos los equipos --</option>
+                                        <option th:each="team : ${tournament.teams}"
+                                                th:value="${team.id}"
+                                                th:text="${team.name}"></option>
+                                    </select>
+                                </div>
                             </div>
 
                             <div class="fixture-cards-grid">
-                                <div th:each="match : ${matches}" th:class="${'match-card jornada-' + match.round}">
+                                <div th:each="match : ${matches}"
+                                     th:class="${'match-card jornada-' + match.round}"
+                                     th:attr="data-home-team-id=${match.homeTeam.id},data-away-team-id=${match.awayTeam.id}">
                                     <div class="match-card-header">
                                         <span class="match-round-badge" th:text="${'JORNADA ' + match.round}">JORNADA 1</span>
                                         <span class="match-date-badge" th:text="${#temporals.format(match.matchDate, 'dd/MM/yyyy - hh:mm a')}">01/01/2025</span>
@@ -180,6 +193,21 @@
                                         <span th:if="${match.played}" class="match-status played">Jugado</span>
                                         <span th:if="${!match.played}" class="match-status scheduled">Programado</span>
                                     </div>
+                                    <form th:if="${managementEnabled}"
+                                          th:action="@{/tournaments/admin/updateMatchDate}"
+                                          method="POST"
+                                          class="match-date-form">
+                                        <input type="hidden" name="tournamentId" th:value="${tournament.id}">
+                                        <input type="hidden" name="matchId" th:value="${match.id}">
+                                        <label th:for="${'matchDate-' + match.id}">Fecha y hora</label>
+                                        <input th:id="${'matchDate-' + match.id}"
+                                               type="datetime-local"
+                                               class="form-control"
+                                               name="matchDate"
+                                               th:value="${#temporals.format(match.matchDate, 'yyyy-MM-dd''T''HH:mm')}"
+                                               required>
+                                        <button type="submit" class="btn btn-secondary btn-match-date">Actualizar fecha</button>
+                                    </form>
                                 </div>
                             </div>
                         </div>

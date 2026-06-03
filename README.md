@@ -73,27 +73,6 @@ Copy-Item .env.example .env
 
 ### 3. Configurar variables de entorno
 
-Edita `.env` con tus valores reales:
-
-```dotenv
-SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/db_sigeca
-SPRING_DATASOURCE_USERNAME=appuser
-SPRING_DATASOURCE_PASSWORD=your_app_password
-SPRING_JPA_HIBERNATE_DDL_AUTO=update
-SPRING_JPA_SHOW_SQL=false
-
-SPRING_MAIL_HOST=smtp.gmail.com
-SPRING_MAIL_PORT=587
-SPRING_MAIL_USERNAME=tu_correo@gmail.com
-SPRING_MAIL_PASSWORD=tu_contrasena_de_aplicacion
-
-SPRING_MAIL_SMTP_AUTH=true
-SPRING_MAIL_SMTP_STARTTLS_ENABLE=true
-
-MYSQL_ROOT_PASSWORD=your_root_password
-MYSQL_DATABASE=db_sigeca
-MYSQL_USER=appuser
-MYSQL_PASSWORD=your_app_password
 ```
 
 ### 4. Levantar el entorno con Docker
@@ -134,22 +113,6 @@ El sistema puede enviar correos de verificacion y comprobantes PDF. Para que esa
 4. Genera una nueva contrasena para correo.
 5. Usa esa contrasena en `SPRING_MAIL_PASSWORD`.
 
-Configuracion recomendada:
-
-```dotenv
-SPRING_MAIL_HOST=smtp.gmail.com
-SPRING_MAIL_PORT=587
-SPRING_MAIL_USERNAME=tu_correo@gmail.com
-SPRING_MAIL_PASSWORD=tu_contrasena_de_aplicacion
-SPRING_MAIL_SMTP_AUTH=true
-SPRING_MAIL_SMTP_STARTTLS_ENABLE=true
-```
-
-Notas:
-
-- Si no configuras el correo, la aplicacion puede iniciar, pero las funciones de verificacion por email y envio de facturas no funcionaran correctamente.
-- No subas nunca tu archivo `.env` ni contrasenas reales al repositorio.
-
 ## Credenciales Y Acceso
 
 Las credenciales dependen de los valores definidos en tu `.env`.
@@ -187,7 +150,9 @@ Detener y eliminar volumenes:
 docker compose down -v
 ```
 
-## Prueba Rapida
+## Levantar proyecto 
+
+.\mvnw.cmd spring-boot:run
 
 Cuando la aplicacion este corriendo, puedes validar el estado con:
 
@@ -217,11 +182,6 @@ En Windows PowerShell:
 .\mvnw.cmd test
 ```
 
-## Seguridad
-
-- No subas `.env`, contrasenas reales ni configuraciones locales.
-- El repositorio publica solo valores de ejemplo en `.env.example`.
-- Para produccion no se recomienda usar `ddl-auto=update`; lo ideal es incorporar migraciones de base de datos.
 
 ## Estado Del Proyecto
 
