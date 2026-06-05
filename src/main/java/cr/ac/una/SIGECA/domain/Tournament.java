@@ -63,6 +63,8 @@ public class Tournament {
     
     private int minPlayersPerTeam;
     private int maxPlayersPerTeam;
+    private int minTeams;
+    private int maxTeams;
 
     // Relacion muchos a muchos con Referee
     @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
@@ -307,5 +309,21 @@ public class Tournament {
 
     public void setMaxPlayersPerTeam(int maxPlayersPerTeam) {
         this.maxPlayersPerTeam = maxPlayersPerTeam;
+    }
+
+    public int getMaxTeams() {
+        return maxTeams;
+    }
+
+    public int getMinTeams() {
+        return minTeams;
+    }
+
+    public void setMinTeams(int minTeams) {
+        this.minTeams = minTeams;
+    }
+
+    public void setMaxTeams(int maxTeams) {
+        this.maxTeams = maxTeams;
     }
 }

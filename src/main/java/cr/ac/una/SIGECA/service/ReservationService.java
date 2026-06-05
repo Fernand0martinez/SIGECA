@@ -42,7 +42,10 @@ public class ReservationService implements CRUD<Reservation> {
     }
 
     public List<Reservation> getByUser(User user) {
-        return resv.findByUser(user);
+        if (user == null) {
+            return List.of();
+        }
+        return resv.findByUserIdOrderByDateDescStartHourDesc(user.getId());
     }
 
     public Reservation findById(Integer id) {

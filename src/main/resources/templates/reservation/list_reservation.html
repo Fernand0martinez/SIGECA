@@ -3,7 +3,6 @@
     <head>
         <meta charset="UTF-8">
         <link rel="stylesheet" th:href="@{/StyleList_reservation.css}">
-        <script type="text/javascript" th:src="@{/usuario.js}"></script>
         <title>Lista de Reservaciones</title>
     </head>
     <body>
@@ -29,6 +28,9 @@
                     </tr>
                 </thead>
                 <tbody>
+                    <tr th:if="${reservacion == null or reservacion.isEmpty()}">
+                        <td colspan="7">No hay reservaciones para mostrar.</td>
+                    </tr>
                     <tr th:each="res : ${reservacion}">
                         <td th:text="${res.date}">2025-01-01</td>
                         <td th:text="${res.startHour}">10</td>

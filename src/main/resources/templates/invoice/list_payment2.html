@@ -8,7 +8,6 @@
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <link rel="stylesheet" th:href="@{/StylesPlayer.css}">
         <!-- Asegúrate de cargar el script correcto -->
-        <script type="text/javascript" th:src="@{/usuario.js}"></script>  
     </head>
     <body>
         <div class="payment" th:fragment="contenido">
@@ -20,11 +19,11 @@
                     <h2>Filtrar por método de pago:</h2> 
                     <form action="/payments/user/filter" method="get" class="payment-filter-form">
                         <input type="hidden" name="page" value="1">
-                        <select name="metodo" onchange="this.form.submit()">
+                        <select name="metodo" class="payment-filter-select">
                             <option value="">Seleccionar</option>
                             <option value="T">Todos</option>
                             <th:block th:each="method : ${method}">
-                                <option th:value="${method.name}" 
+                                <option th:value="${method.name()}" 
                                         th:selected="${metodoSeleccionado == method.name()}" 
                                         th:text="${#strings.capitalize(method.name().toLowerCase().replace('_', ' '))}">
                                 </option>
@@ -56,6 +55,9 @@
                         </tr>
                     </thead>
                     <tbody>
+                        <tr th:if="${payment == null or payment.isEmpty()}">
+                            <td colspan="5">No hay pagos para mostrar.</td>
+                        </tr>
                         <tr th:each="pay : ${payment}">
                             <td th:text="${pay.reservation.user.nameUser}" style="color: blueviolet"></td>
                             <td th:text="${#temporals.format(pay.paymentDate, 'dd/MM/yyyy')}" style="color: blueviolet"></td>

@@ -38,6 +38,9 @@ public class TournamentService implements CRUD<Tournament>{
         if(t.getEndDate() == null) {
             throw new IllegalArgumentException("Tournament end date is required.");
         }
+        if (t.getMinTeams() > 0 && t.getMaxTeams() > 0 && t.getMinTeams() > t.getMaxTeams()) {
+            throw new IllegalArgumentException("La cantidad minima de equipos no puede ser mayor al maximo.");
+        }
         repoTournament.save(t);
     }
 
@@ -66,6 +69,10 @@ public class TournamentService implements CRUD<Tournament>{
         if (!"DRAFT".equals(tournament.getTournamentState())) {
             throw new IllegalStateException("Solo se pueden agregar equipos si el torneo está en borrador.");
         }
+        if (tournament.getMaxTeams() > 0 && tournament.getTeams().size() >= tournament.getMaxTeams()) {
+            throw new IllegalArgumentException("El torneo ya alcanzo la cantidad maxima de equipos permitida (" + tournament.getMaxTeams() + ").");
+        }
+
         cr.ac.una.SIGECA.domain.Team team = repoTeam.findById(teamId).orElseThrow(() -> new EntityNotFoundException("Equipo no encontrado con id " + teamId));
         
         // Validación: Conteo de jugadores
@@ -118,8 +125,12 @@ public class TournamentService implements CRUD<Tournament>{
         if (!"DRAFT".equals(tournament.getTournamentState())) {
             throw new IllegalStateException("El torneo ya ha sido lanzado o finalizado.");
         }
-        if (tournament.getTeams().size() < 2) {
-            throw new IllegalArgumentException("Debe haber al menos 2 equipos inscritos para lanzar el torneo.");
+        int minTeams = tournament.getMinTeams() > 0 ? tournament.getMinTeams() : 2;
+        if (tournament.getTeams().size() < minTeams) {
+            throw new IllegalArgumentException("Debe haber al menos " + minTeams + " equipos inscritos para lanzar el torneo.");
+        }
+        if (tournament.getMaxTeams() > 0 && tournament.getTeams().size() > tournament.getMaxTeams()) {
+            throw new IllegalArgumentException("El torneo supera la cantidad maxima de equipos permitida (" + tournament.getMaxTeams() + ").");
         }
 
         // Generar fixture

@@ -20,6 +20,7 @@
                     <span th:if="${tournament.tournamentState == 'DRAFT' or tournament.tournamentState == null}" class="badge-large badge-draft">Borrador</span>
                     <span th:if="${tournament.tournamentState == 'ACTIVE'}" class="badge-large badge-active">Activo</span>
                     <span th:if="${tournament.tournamentState == 'FINISHED'}" class="badge-large badge-finished">Finalizado</span>
+                    <span th:if="${tournamentFull}" class="badge-large badge-finished">Lleno</span>
 
                     <h1 th:text="${tournament.name}">Nombre del Torneo</h1>
                     <p class="tournament-meta">
@@ -32,11 +33,11 @@
                 <div class="header-actions" th:if="${managementEnabled and (tournament.tournamentState == 'DRAFT' or tournament.tournamentState == null)}">
                     <form th:action="@{/tournaments/admin/launch}" method="POST" class="tournament-launch-form">
                         <input type="hidden" name="id" th:value="${tournament.id}">
-                        <button type="submit" class="btn-launch" th:disabled="${tournament.teams.size() < 2}">
+                        <button type="submit" class="btn-launch" th:disabled="${tournament.teams.size() < minTeamsRequired}">
                             Lanzar Torneo
                         </button>
                     </form>
-                    <small class="launch-hint" th:if="${tournament.teams.size() < 2}">Inscribe al menos 2 equipos para poder lanzar</small>
+                    <small class="launch-hint" th:if="${tournament.teams.size() < minTeamsRequired}" th:text="${'Inscribe al menos ' + minTeamsRequired + ' equipos para poder lanzar'}">Inscribe al menos 2 equipos para poder lanzar</small>
                 </div>
             </section>
 
@@ -53,17 +54,19 @@
                             <form th:action="@{/tournaments/admin/addTeam}" method="POST" class="tournament-details-form add-team-row">
                                 <input type="hidden" name="tournamentId" th:value="${tournament.id}">
                                 <div class="select-wrapper">
-                                    <select name="teamId" required class="form-select">
+                                    <select name="teamId" required class="form-select" th:disabled="${tournamentFull}">
                                         <option value="">-- Selecciona un equipo --</option>
                                         <option th:each="team : ${availableTeams}" th:value="${team.id}" th:text="${team.name}"></option>
                                     </select>
                                 </div>
-                                <button type="submit" class="btn btn-primary btn-add-team" th:disabled="${availableTeams.isEmpty()}">
+                                <button type="submit" class="btn btn-primary btn-add-team" th:disabled="${availableTeams.isEmpty() or tournamentFull}">
                                     Inscribir Equipo
                                 </button>
                             </form>
                             <p class="no-teams-alert" th:if="${availableTeams.isEmpty()}">Todos los equipos disponibles ya están inscritos.</p>
                         </div>
+
+                        <p class="no-teams-alert" th:if="${tournamentFull}">El torneo ya esta lleno.</p>
 
                         <div class="teams-list-wrapper">
                             <div class="section-heading-row">
@@ -225,6 +228,10 @@
                             <li>
                                 <strong>Equipos inscritos:</strong>
                                 <span th:text="${tournament.teams.size()}">0</span>
+                            </li>
+                            <li>
+                                <strong>Equipos requeridos:</strong>
+                                <span th:text="${minTeamsRequired + ' minimo / ' + (tournament.maxTeams > 0 ? tournament.maxTeams : 'sin maximo')}">2 minimo / 8 maximo</span>
                             </li>
                             <li>
                                 <strong>Partidos generados:</strong>

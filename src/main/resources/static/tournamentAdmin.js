@@ -86,6 +86,13 @@ document.addEventListener("click", function (e) {
         return;
     }
 
+    const editLink = e.target.closest(".edit-tournament-link");
+    if (editLink) {
+        e.preventDefault();
+        loadTournamentView(editLink.getAttribute("href"));
+        return;
+    }
+
     const backLink = e.target.closest(".back-tournament-list");
     if (backLink) {
         e.preventDefault();

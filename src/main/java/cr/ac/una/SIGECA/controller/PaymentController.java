@@ -128,7 +128,6 @@ public class PaymentController {
             return "redirect:/login/home";
         }
 
-        List<Payment> paymentList = new ArrayList<>();
         model.addAttribute("method", PaymentMethod.values());
         model.addAttribute("metodos", PaymentMethod.values());
         model.addAttribute("metodoSeleccionado", metodo);
@@ -136,9 +135,11 @@ public class PaymentController {
         if (metodo == null || metodo.isEmpty()) {
             model.addAttribute("message", "Seleccione un tipo de filtrado.");
             model.addAttribute("type", "warning");
+            addPaymentPageModel(model, List.of(), 1);
             return isAjax ? "invoice/list_payment2 :: contenido" : "invoice/list_payment2";
         }
 
+        List<Payment> paymentList;
         if ("T".equals(metodo)) {
             paymentList = pay.getByIdUser(user.getId());
         } else {
@@ -152,6 +153,7 @@ public class PaymentController {
             } catch (IllegalArgumentException e) {
                 model.addAttribute("message", "Metodo de pago invalido.");
                 model.addAttribute("type", "error");
+                addPaymentPageModel(model, List.of(), 1);
                 return isAjax ? "invoice/list_payment2 :: contenido" : "invoice/list_payment2";
             }
         }
@@ -159,12 +161,25 @@ public class PaymentController {
         if (paymentList.isEmpty()) {
             model.addAttribute("message", "No hay pagos con ese metodo.");
             model.addAttribute("type", "info");
+            addPaymentPageModel(model, paymentList, 1);
             return isAjax ? "invoice/list_payment2 :: contenido" : "invoice/list_payment2";
         }
 
+        addPaymentPageModel(model, paymentList, page);
+
+        return isAjax ? "invoice/list_payment2 :: contenido" : "invoice/list_payment2";
+    }
+
+    private void addPaymentPageModel(Model model, List<Payment> paymentList, int page) {
         int pageSize = 5;
         int totalPayments = paymentList.size();
         int totalPages = (int) Math.ceil((double) totalPayments / pageSize);
+        if (totalPages == 0) {
+            model.addAttribute("payment", List.of());
+            model.addAttribute("currentPage", 1);
+            model.addAttribute("totalPages", 0);
+            return;
+        }
 
         if (page < 1) {
             page = 1;
@@ -180,8 +195,6 @@ public class PaymentController {
         model.addAttribute("payment", currentPagePayments);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", totalPages);
-
-        return isAjax ? "invoice/list_payment2 :: contenido" : "invoice/list_payment2";
     }
 
     @GetMapping("/user/pay-form")

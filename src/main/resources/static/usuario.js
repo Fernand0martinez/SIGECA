@@ -320,6 +320,19 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
+    document.addEventListener("change", function (e) {
+        const paymentFilterSelect = e.target.closest(".payment-filter-select");
+        if (!paymentFilterSelect) {
+            return;
+        }
+        const form = paymentFilterSelect.closest(".payment-filter-form");
+        if (!form) {
+            return;
+        }
+        const params = new URLSearchParams(new FormData(form)).toString();
+        cargarContenido(form.action + "?" + params, "Cargando pagos...").catch(console.error);
+    });
+
     document.addEventListener("submit", function (e) {
         const tournamentRegistrationForm = e.target.closest("form[action='/tournaments/user/register']");
         if (tournamentRegistrationForm) {

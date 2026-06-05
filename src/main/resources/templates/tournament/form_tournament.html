@@ -53,6 +53,18 @@
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
+                            <label for="minTeams" class="form-label required-field">Equipos Minimos</label>
+                            <input type="number" class="form-control" id="minTeams" name="minTeams" value="2" min="2" required>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="maxTeams" class="form-label required-field">Equipos Maximos</label>
+                            <input type="number" class="form-control" id="maxTeams" name="maxTeams" value="8" min="2" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
                             <label for="matchDay" class="form-label required-field">Día de Juego</label>
                             <select class="form-select" id="matchDay" name="matchDay" required>
                                 <option value="SABADO" selected>Sábado</option>

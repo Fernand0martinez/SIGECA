@@ -9,7 +9,7 @@
     </head>
     <body>
         <a class="back-top-btn" href="/tournaments/admin/list">← Volver</a>
-        <div class="tournament-container">
+        <div class="tournament-container" th:fragment="contenido">
             <div class="form-container">
                 <h2>Editar Torneo</h2>
 
@@ -46,7 +46,19 @@
                         </div>
                     </div>
 
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="minTeams" class="form-label">Equipos Minimos</label>
+                            <input type="number" class="form-control" id="minTeams" name="minTeams" th:value="${tournament.minTeams > 0 ? tournament.minTeams : 2}" min="2" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="maxTeams" class="form-label">Equipos Maximos</label>
+                            <input type="number" class="form-control" id="maxTeams" name="maxTeams" th:value="${tournament.maxTeams > 0 ? tournament.maxTeams : 8}" min="2" required>
+                        </div>
+                    </div>
+
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="/tournaments/admin/list" class="btn btn-secondary back-tournament-list">Volver</a>
                         <button type="submit" class="btn btn-primary">Actualizar Torneo</button>
                     </div>
                 </form>

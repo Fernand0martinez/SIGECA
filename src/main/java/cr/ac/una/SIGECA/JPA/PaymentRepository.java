@@ -14,10 +14,10 @@ import org.springframework.data.repository.query.Param;
  */
 
 public interface PaymentRepository extends JpaRepository<Payment,Integer>{
-     @Query("SELECT p FROM Payment p WHERE p.reservation.user.id = :id_user")
+     @Query("SELECT p FROM Payment p WHERE p.reservation.user.id = :id_user ORDER BY p.paymentDate DESC")
     List<Payment> findByIdUser(@Param("id_user") int id_user);
     
-    @Query("SELECT p FROM Payment p WHERE p.reservation.user.id = :userId AND p.method = :method")
+    @Query("SELECT p FROM Payment p WHERE p.reservation.user.id = :userId AND p.method = :method ORDER BY p.paymentDate DESC")
     List<Payment> findByUserIdAndMethod(@Param("userId") int userId, @Param("method") PaymentMethod method);
     
 }

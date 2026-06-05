@@ -32,9 +32,11 @@
                                     <span th:if="${tournament.tournamentState == 'DRAFT' or tournament.tournamentState == null}" class="status-badge status-draft">Borrador</span>
                                     <span th:if="${tournament.tournamentState == 'ACTIVE'}" class="status-badge status-active">Activo</span>
                                     <span th:if="${tournament.tournamentState == 'FINISHED'}" class="status-badge status-finished">Finalizado</span>
+                                    <span th:if="${tournament.maxTeams > 0 and tournament.teams.size() >= tournament.maxTeams}" class="status-badge status-finished">Lleno</span>
                                 </td>
                                 <td>
                                     <a th:href="@{/tournaments/admin/details(id=${tournament.id})}" class="action-btn details-tournament-link">Gestionar</a>
+                                    <a th:href="@{/tournaments/admin/edit(id=${tournament.id})}" class="action-btn edit-tournament-link">Editar</a>
                                     <form th:action="@{/tournaments/admin/delete}" method="post" style="display:inline;" class="tournament-delete-form">
                                         <input type="hidden" name="id" th:value="${tournament.id}">
                                         <button type="submit" class="delete-btn">Eliminar</button>

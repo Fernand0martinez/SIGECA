@@ -94,6 +94,8 @@ public class TournamentController {
             @RequestParam(value = "matchTime", required = false) String matchTime,
             @RequestParam(value = "minPlayersPerTeam") int minPlayersPerTeam,
             @RequestParam(value = "maxPlayersPerTeam") int maxPlayersPerTeam,
+            @RequestParam(value = "minTeams", defaultValue = "2") int minTeams,
+            @RequestParam(value = "maxTeams", defaultValue = "8") int maxTeams,
             HttpServletRequest request,
             Model model,
             RedirectAttributes redirectAttributes) {
@@ -111,6 +113,17 @@ public class TournamentController {
 
         boolean status = LocalDate.now().isBefore(endDate) && LocalDate.now().isBefore(startDate);
 
+        if (minTeams > maxTeams) {
+            if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
+                model.addAttribute("error", "La cantidad minima de equipos no puede ser mayor al maximo.");
+                model.addAttribute("sponsorships", sponsorshipService.getAll());
+                model.addAttribute("refeeres", refereeService.getAll());
+                return "tournament/form_tournament :: contenido";
+            }
+            redirectAttributes.addFlashAttribute("error", "La cantidad minima de equipos no puede ser mayor al maximo.");
+            return "redirect:/tournaments/admin/form";
+        }
+
         Tournament tournament = new Tournament();
         tournament.setName(name);
         tournament.setStartDate(startDate);
@@ -121,6 +134,8 @@ public class TournamentController {
         tournament.setMatchTime(matchTime != null ? matchTime : "15:00");
         tournament.setMinPlayersPerTeam(minPlayersPerTeam);
         tournament.setMaxPlayersPerTeam(maxPlayersPerTeam);
+        tournament.setMinTeams(minTeams);
+        tournament.setMaxTeams(maxTeams);
 
         if (sponsorId != null) {
             Sponsorship sponsor = sponsorshipService.getById(sponsorId);
@@ -154,7 +169,7 @@ public class TournamentController {
     }
 
     @GetMapping("/admin/edit")
-    public String editTournament(@RequestParam("id") int id, Model model) {
+    public String editTournament(@RequestParam("id") int id, Model model, HttpServletRequest request) {
         Tournament tournament = tournamentService.getById(id);
         if (tournament == null) {
             return "redirect:/tournaments/admin/list";
@@ -163,6 +178,9 @@ public class TournamentController {
         List<Sponsorship> sponsorships = sponsorshipService.getAll();
         model.addAttribute("sponsorships", sponsorships);
         model.addAttribute("tournament", tournament);
+        if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
+            return "tournament/form_tournament_edit :: contenido";
+        }
         return "tournament/form_tournament_edit";
     }
 
@@ -174,6 +192,8 @@ public class TournamentController {
             @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam("minPlayersPerTeam") int minPlayersPerTeam,
             @RequestParam("maxPlayersPerTeam") int maxPlayersPerTeam,
+            @RequestParam("minTeams") int minTeams,
+            @RequestParam("maxTeams") int maxTeams,
             RedirectAttributes redirectAttributes) {
 
         Tournament tournament = tournamentService.getById(id);
@@ -191,11 +211,23 @@ public class TournamentController {
             return "redirect:/tournaments/admin/edit?id=" + id;
         }
 
+        if (minTeams > maxTeams) {
+            redirectAttributes.addFlashAttribute("error", "La cantidad minima de equipos no puede ser mayor al maximo.");
+            return "redirect:/tournaments/admin/edit?id=" + id;
+        }
+
+        if (maxTeams < tournament.getTeams().size()) {
+            redirectAttributes.addFlashAttribute("error", "La cantidad maxima de equipos no puede ser menor a los equipos ya inscritos.");
+            return "redirect:/tournaments/admin/edit?id=" + id;
+        }
+
         tournament.setName(name);
         tournament.setStartDate(startDate);
         tournament.setEndDate(endDate);
         tournament.setMinPlayersPerTeam(minPlayersPerTeam);
         tournament.setMaxPlayersPerTeam(maxPlayersPerTeam);
+        tournament.setMinTeams(minTeams);
+        tournament.setMaxTeams(maxTeams);
 
         tournamentService.save(tournament);
 
@@ -330,11 +362,15 @@ public class TournamentController {
     private void populateTournamentDetailsModel(Model model, Tournament tournament, boolean managementEnabled) {
         List<Team> availableTeams = teamService.listAllTeams();
         availableTeams.removeAll(tournament.getTeams());
+        int minTeamsRequired = tournament.getMinTeams() > 0 ? tournament.getMinTeams() : 2;
+        boolean tournamentFull = tournament.getMaxTeams() > 0 && tournament.getTeams().size() >= tournament.getMaxTeams();
 
         model.addAttribute("tournament", tournament);
         model.addAttribute("availableTeams", availableTeams);
         model.addAttribute("matches", matchService.getMatchesByTournament(tournament.getId()));
         model.addAttribute("managementEnabled", managementEnabled);
+        model.addAttribute("minTeamsRequired", minTeamsRequired);
+        model.addAttribute("tournamentFull", tournamentFull);
     }
 
     private User getLoggedUser(HttpSession session) {

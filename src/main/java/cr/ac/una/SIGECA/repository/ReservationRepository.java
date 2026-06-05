@@ -15,4 +15,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface ReservationRepository extends JpaRepository<Reservation, Integer> {
 
     List<Reservation> findByUser(User user);
+
+    List<Reservation> findByUserIdOrderByDateDescStartHourDesc(Integer userId);
 }
