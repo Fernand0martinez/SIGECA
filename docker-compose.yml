@@ -29,7 +29,7 @@ services:
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     container_name: sgc_phpmyadmin
-    restart: always
+    restart: no
     ports:
       - "8081:80"
     environment:
